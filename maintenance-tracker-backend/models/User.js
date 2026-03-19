@@ -8,10 +8,12 @@ const userSchema = new mongoose.Schema({
   role: { type: String, enum: ["admin", "manager"], default: "manager" },
 });
 
-userSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) return next();
+userSchema.pre("save", async function () {
+  // Skip if password was not modified (includes new documents where it's required)
+  if (!this.isModified("password")) return;
+
+  // Hash the password
   this.password = await bcrypt.hash(this.password, 10);
-  next();
 });
 
 module.exports = mongoose.model("User", userSchema);
