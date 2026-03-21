@@ -89,6 +89,29 @@ export default function Login() {
           </Link>
         </p>
       </Card>
+      {/* {Demo Credentials} */}
+      <Card className="mt-6 w-full max-w-md text-blue-500 bg-gradient-to-bl from-indigo-50 to-white p-4 rounded-lg shadow-sm">
+        <p className="mb-1 text-sm text-indigo-500">Demo Credentials:</p>
+        <p className="text-sm font-medium">
+          Admin:{" "}
+          <span className="font-mono text-xs">
+            {" "}
+            <span className="font-semibold">email:</span> admin@rentflow
+          </span>
+          {"  "}
+          <span className="font-mono text-xs">
+            <span className="font-semibold">/ password:</span> admin123
+          </span>
+          <br />
+          <span className="">Manager:</span>{" "}
+          <span className="font-mono text-xs">
+            <span className="font-semibold">email:</span> manager@rentflow
+          </span>
+          <span className=" ml-1 text-xs">
+            <span className="font-semibold">/ password:</span> manager123
+          </span>
+        </p>
+      </Card>
     </div>
   );
 }
