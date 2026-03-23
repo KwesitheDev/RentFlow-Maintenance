@@ -1,13 +1,14 @@
 import React, { useState } from "react";
-import Sidebar from "./Sidebar";
-import TopBar from "./TopBar";
-import RequestsView from "./RequestsView";
-import UsersView from "./UsersView";
+import Sidebar from "../components/Sidebar";
+import TopBar from "../components/TopBar";
+import RequestsView from "../components/RequestsView";
+import UsersView from "../components/UsersView";
 import { useAuth } from "../context/AuthContext";
+import Home from "./Home";
 
 export default function Dashboard() {
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState("requests");
+  const [activeTab, setActiveTab] = useState("home");
 
   const renderContent = () => {
     switch (activeTab) {
@@ -15,8 +16,10 @@ export default function Dashboard() {
         return <RequestsView />;
       case "users":
         return user?.role === "admin" ? <UsersView /> : null;
+      case "home":
+        return <Home />;
       default:
-        return <RequestsView />;
+        return <Home />;
     }
   };
 
