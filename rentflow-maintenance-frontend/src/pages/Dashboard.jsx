@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import Sidebar from "../components/Sidebar";
 import TopBar from "../components/TopBar";
-import RequestsView from "../components/RequestsView";
+import RequestsView from "../pages/RequestsView";
 import UsersView from "../components/UsersView";
 import { useAuth } from "../context/AuthContext";
 import Home from "./Home";
