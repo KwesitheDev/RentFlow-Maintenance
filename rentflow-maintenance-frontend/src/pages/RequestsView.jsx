@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Plus } from "lucide-react";
+import { Plus, Wrench } from "lucide-react";
 
 export default function RequestsView() {
   const [requests, setRequests] = useState([]);
@@ -182,7 +182,11 @@ export default function RequestsView() {
   };
 
   if (loading) {
-    return <div className="text-center py-10">Loading...</div>;
+    return (
+      <div className="text-center py-10">
+        <Wrench className="animate-spin h-8 w-8 bg-blue-100 text-blue-500" />
+      </div>
+    );
   }
 
   return (
