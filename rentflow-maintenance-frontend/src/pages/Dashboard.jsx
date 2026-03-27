@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import Sidebar from "../components/Sidebar";
 import TopBar from "../components/TopBar";
 import RequestsView from "../pages/RequestsView";
-import UsersView from "../components/UsersView";
+import UsersView from "../pages/UsersView";
 import { useAuth } from "../context/AuthContext";
 import Home from "./Home";
 import Properties from "./Properties";
