@@ -17,7 +17,7 @@ export const AuthProvider = ({ children }) => {
       try {
         const parsedUser = JSON.parse(storedUser);
         setUser(parsedUser);
-        // Optional: validate token by calling a protected endpoint
+        // TODO: validate token by calling a protected endpoint
       } catch (err) {
         localStorage.removeItem("token");
         localStorage.removeItem("user");
