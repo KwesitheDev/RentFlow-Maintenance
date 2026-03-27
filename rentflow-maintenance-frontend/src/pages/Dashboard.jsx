@@ -5,7 +5,9 @@ import RequestsView from "../pages/RequestsView";
 import UsersView from "../components/UsersView";
 import { useAuth } from "../context/AuthContext";
 import Home from "./Home";
+import Properties from "./Properties";
 
+// TODO: add proper routing and layout for the dashboard, this is just a placeholder to show how the components fit together
 export default function Dashboard() {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState("home");
@@ -18,6 +20,8 @@ export default function Dashboard() {
         return user?.role === "admin" ? <UsersView /> : null;
       case "home":
         return <Home />;
+      case "properties":
+        return <Properties />;
       default:
         return <Home />;
     }
