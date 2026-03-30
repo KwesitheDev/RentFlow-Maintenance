@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import { UserPlus, Trash2, ShieldCheck, User } from "lucide-react";
+import ConfirmModal from "../components/ConfirmModal";
 
 export default function UsersView() {
   const { axiosWithAuth } = useAuth();
@@ -13,11 +14,11 @@ export default function UsersView() {
     password: "",
     role: "manager",
   });
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [deleting, setDeleting] = useState(false);
 
-  useEffect(() => {
-    fetchUsers();
-  }, []);
-
+  // Fetch users
   const fetchUsers = async () => {
     try {
       const res = await axiosWithAuth.get("/users");
@@ -29,10 +30,51 @@ export default function UsersView() {
     }
   };
 
+  // Open delete modal
+  const openDeleteModal = (user) => {
+    setSelectedUser(user);
+    setShowDeleteModal(true);
+  };
+
+  // Confirm deletion
+  const confirmDeleteUser = async () => {
+    if (!selectedUser) return;
+
+    try {
+      setDeleting(true);
+      await axiosWithAuth.delete(`/users/${selectedUser._id}`);
+      setShowDeleteModal(false);
+      setSelectedUser(null);
+      fetchUsers();
+    } catch (err) {
+      alert("Failed to delete user");
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  // handle modal close with escape key
+  useEffect(() => {
+    const handleEsc = (e) => {
+      if (e.key === "Escape") {
+        setShowDeleteModal(false);
+      }
+    };
+
+    window.addEventListener("keydown", handleEsc);
+    return () => window.removeEventListener("keydown", handleEsc);
+  }, []);
+
+  // Form change
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  // Create user
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -42,16 +84,6 @@ export default function UsersView() {
       fetchUsers();
     } catch (err) {
       alert(err.response?.data?.message || "Failed to create user");
-    }
-  };
-
-  const deleteUser = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this user?")) return;
-    try {
-      await axiosWithAuth.delete(`/users/${id}`);
-      fetchUsers();
-    } catch (err) {
-      alert("Failed to delete user");
     }
   };
 
@@ -65,6 +97,7 @@ export default function UsersView() {
 
   return (
     <div>
+      {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold text-gray-900">User Management</h2>
         <button
@@ -76,6 +109,7 @@ export default function UsersView() {
         </button>
       </div>
 
+      {/* Create User Form */}
       {showForm && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg shadow-xl p-8 max-w-md w-full">
@@ -155,6 +189,7 @@ export default function UsersView() {
         </div>
       )}
 
+      {/* Users Table */}
       <div className="bg-white shadow rounded-lg overflow-hidden">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
@@ -204,7 +239,7 @@ export default function UsersView() {
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                   <button
-                    onClick={() => deleteUser(u._id)}
+                    onClick={() => openDeleteModal(u)}
                     className="text-red-600 hover:text-red-900"
                     title="Delete user"
                   >
@@ -216,6 +251,26 @@ export default function UsersView() {
           </tbody>
         </table>
       </div>
+
+      {/*  Confirm Modal */}
+      <ConfirmModal
+        isOpen={showDeleteModal}
+        title="Delete User"
+        message={
+          <>
+            Are you sure you want to delete{" "}
+            <span className="font-bold font-mono">{selectedUser?.name}</span>?
+            This action cannot be undone.
+          </>
+        }
+        onConfirm={confirmDeleteUser}
+        onCancel={() => {
+          setShowDeleteModal(false);
+          setSelectedUser(null);
+        }}
+        confirmText="Delete"
+        loading={deleting}
+      />
     </div>
   );
 }
