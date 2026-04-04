@@ -7,11 +7,16 @@ import {
   Settings,
   Building2,
 } from "lucide-react";
+import { NavLink } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
-// TODO: link sidebar to appropriate active tabs/pages
-export default function Sidebar({ activeTab, setActiveTab, role }) {
+export default function Sidebar({ role }) {
   const { logout } = useAuth();
+
+  const linkClass = ({ isActive }) =>
+    `w-full flex items-center px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
+      isActive ? "bg-blue-50 text-blue-700" : "text-gray-700 hover:bg-gray-100"
+    }`;
 
   return (
     <div className="w-64 bg-white border-r border-gray-200 flex flex-col">
@@ -20,64 +25,32 @@ export default function Sidebar({ activeTab, setActiveTab, role }) {
       </div>
 
       <nav className="flex-1 px-3 py-6 space-y-1">
-        <button
-          onClick={() => setActiveTab("requests")}
-          className={`w-full flex items-center px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
-            activeTab === "requests"
-              ? "bg-blue-50 text-blue-700"
-              : "text-gray-700 hover:bg-gray-100"
-          }`}
-        >
+        <NavLink to="/home" className={linkClass}>
           <LayoutDashboard className="mr-3 h-5 w-5" />
           Dashboard
-        </button>
-        <button
-          onClick={() => setActiveTab("requests")}
-          className={`w-full flex items-center px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
-            activeTab === "requests"
-              ? "bg-blue-50 text-blue-700"
-              : "text-gray-700 hover:bg-gray-100"
-          }`}
-        >
+        </NavLink>
+
+        <NavLink to="/requests" className={linkClass}>
           <Wrench className="mr-3 h-5 w-5" />
           Maintenance Requests
-        </button>
-        <button
-          onClick={() => setActiveTab("requests")}
-          className={`w-full flex items-center px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
-            activeTab === "requests"
-              ? "bg-blue-50 text-blue-700"
-              : "text-gray-700 hover:bg-gray-100"
-          }`}
-        >
+        </NavLink>
+
+        <NavLink to="/properties" className={linkClass}>
           <Building2 className="mr-3 h-5 w-5" />
           Properties
-        </button>
+        </NavLink>
 
         {role === "admin" && (
-          <button
-            onClick={() => setActiveTab("users")}
-            className={`w-full flex items-center px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
-              activeTab === "users"
-                ? "bg-blue-50 text-blue-700"
-                : "text-gray-700 hover:bg-gray-100"
-            }`}
-          >
+          <NavLink to="/users" className={linkClass}>
             <Users className="mr-3 h-5 w-5" />
             Users
-          </button>
+          </NavLink>
         )}
-        <button
-          onClick={() => setActiveTab("requests")}
-          className={`w-full flex items-center px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
-            activeTab === "requests"
-              ? "bg-blue-50 text-blue-700"
-              : "text-gray-700 hover:bg-gray-100"
-          }`}
-        >
+
+        <NavLink to="/settings" className={linkClass}>
           <Settings className="mr-3 h-5 w-5" />
           Settings
-        </button>
+        </NavLink>
       </nav>
 
       <div className="p-4 border-t border-gray-200">
