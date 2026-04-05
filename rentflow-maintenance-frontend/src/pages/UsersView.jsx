@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useAuth } from "../context/AuthContext";
 import { UserPlus, Trash2, ShieldCheck, User } from "lucide-react";
 import ConfirmModal from "../components/ConfirmModal";
@@ -19,7 +19,7 @@ export default function UsersView() {
   const [deleting, setDeleting] = useState(false);
 
   // Fetch users
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     try {
       const res = await axiosWithAuth.get("/users");
       setUsers(res.data);
@@ -28,7 +28,7 @@ export default function UsersView() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [axiosWithAuth]);
 
   // Open delete modal
   const openDeleteModal = (user) => {
