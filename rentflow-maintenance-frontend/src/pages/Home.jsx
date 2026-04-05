@@ -3,6 +3,7 @@ import DashboardCard from "../components/DashboardCard";
 import { Wrench, CircleAlert, Clock4, CircleCheckBig } from "lucide-react";
 
 const Home = () => {
+  // eslint-disable-next-line no-unused-vars
   const [value, setValue] = useState({
     totalRequests: 10,
     pending: 0,
