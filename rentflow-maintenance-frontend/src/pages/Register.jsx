@@ -40,8 +40,26 @@ export default function Register() {
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-r from-violet-50 to-white px-4">
       {/* Header */}
       <div className="text-center mb-6">
-        <h2 className="font-semibold text-4xl">RentFlow</h2>
-        <p className=" text-gray-600">Maintenance Request Tracker</p>
+        <h2 className="text-4xl font-sans tracking-tight">
+          <span
+            className="text-transparent font-semibold bg-clip-text"
+            style={{
+              backgroundImage: "linear-gradient(90deg, #A78BFA, #C4B5FD)",
+            }}
+          >
+            Rent
+          </span>
+          <span
+            className="text-transparent font-bold bg-clip-text"
+            style={{
+              backgroundImage:
+                "linear-gradient(90deg, #7F00FF, #C084FC, #A78BFA)",
+            }}
+          >
+            Flow
+          </span>
+        </h2>
+        <p className="text-gray-600 mt-2">Maintenance Request Tracker</p>
       </div>
 
       {/* Card */}
