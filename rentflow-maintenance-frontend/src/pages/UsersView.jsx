@@ -55,7 +55,7 @@ export default function UsersView() {
 
   useEffect(() => {
     fetchUsers();
-  }, []);
+  }, [fetchUsers]);
 
   // handle modal close with escape key
   useEffect(() => {
