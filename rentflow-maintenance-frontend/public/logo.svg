@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="rf-grad" x1="12" y1="14" x2="52" y2="46" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#2563EB"/>
+      <stop offset="100%" stop-color="#4F46E5"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Roof -->
+  <path d="M12 30 L32 14 L52 30"
+        fill="none"
+        stroke="url(#rf-grad)"
+        stroke-width="3"
+        stroke-linecap="round"
+        stroke-linejoin="round"/>
+
+  <!-- Flow -->
+  <path d="M18 38 C24 33, 40 33, 46 38"
+        fill="none"
+        stroke="url(#rf-grad)"
+        stroke-width="3"
+        stroke-linecap="round"/>
+
+  <!-- Base (more visible now) -->
+  <path d="M18 46 L46 46"
+        stroke="url(#rf-grad)"
+        stroke-width="3"
+        stroke-linecap="round"/>
+</svg>
