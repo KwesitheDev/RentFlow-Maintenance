@@ -6,7 +6,14 @@ const dotenv = require("dotenv");
 dotenv.config();
 
 const app = express();
-app.use(cors());
+app.use(
+  cors({
+    origin: [
+      "http://localhost:3000", //local development
+      "https://rent-flow-maintenance.vercel.app", //vercel deployement
+    ],
+  }),
+);
 app.use(express.json());
 
 mongoose
@@ -19,6 +26,15 @@ app.use("/api/requests", require("./routes/requests"));
 app.use("/api/users", require("./routes/users"));
 
 const PORT = process.env.PORT || 5000;
+
+app.use((err, req, res, next) => {
+  console.error("GLOBAL ERROR:", err.stack);
+  res.status(500).json({
+    message: "Internal Server Error",
+    error: process.env.NODE_ENV === "development" ? err.message : undefined,
+  });
+});
+
 app.listen(PORT, () =>
   console.log(`Server running on http://localhost:${PORT}`),
 );
