@@ -39,7 +39,9 @@ export const AuthProvider = ({ children }) => {
   };
 
   const axiosWithAuth = axios.create({
-    baseURL: process.env.REACT_APP_API_URL,
+    baseURL:
+      process.env.REACT_APP_API_URL ||
+      "https://rentflow-maintenance-backend.onrender.com/api",
   });
 
   axiosWithAuth.interceptors.request.use(
