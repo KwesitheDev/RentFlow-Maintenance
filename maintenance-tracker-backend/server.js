@@ -10,7 +10,7 @@ app.use(
   cors({
     origin: [
       "http://localhost:3000", //local development
-      "https://rent-flow-maintenance.vercel.app", //vercel deployement
+      "https://rentflow-maintenance.vercel.app", //vercel deployement
     ],
   }),
 );
