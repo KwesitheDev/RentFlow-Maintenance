@@ -15,14 +15,65 @@ router.get("/", async (req, res) => {
   }
 });
 
+// edit user details (name, email)
+router.put("/:id", async (req, res) => {
+  const { name, email, role } = req.body;
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    if (email) {
+      const existing = await User.findOne({
+        email: email.toLowerCase(),
+        _id: { $ne: req.params.id },
+      });
+      if (existing) {
+        return res.status(400).json({ message: "Email is already in use" });
+      }
+    }
+    if (role && !["admin", "manager"].includes(role)) {
+      return res.status(400).json({ message: "Invalid role" });
+    }
+
+    user.name = name || user.name;
+    user.email = email || user.email;
+    user.role = role || user.role;
+    await user.save();
+    res.json({
+      id: user.id,
+      _id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 router.post("/", async (req, res) => {
   const { name, email, password, role } = req.body;
   try {
-    let user = await User.findOne({ email });
+    if (!name || !email || !password) {
+      return res
+        .status(400)
+        .json({ message: "Name, email and password are required" });
+    }
+    if (role && !["admin", "manager"].includes(role)) {
+      return res.status(400).json({ message: "Invalid role" });
+    }
+
+    let user = await User.findOne({ email: email.toLowerCase() });
     if (user) return res.status(400).json({ message: "User already exists" });
-    user = new User({ name, email, password, role });
+    user = new User({ name, email, password, role: role || "manager" });
     await user.save();
-    res.status(201).json({ id: user.id, name, email, role: user.role });
+    res.status(201).json({
+      id: user.id,
+      _id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+    });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -30,7 +81,11 @@ router.post("/", async (req, res) => {
 
 router.delete("/:id", async (req, res) => {
   try {
-    await User.findByIdAndDelete(req.params.id);
+    if (req.params.id === req.user.id) {
+      return res.status(400).json({ message: "You cannot delete yourself" });
+    }
+    const user = await User.findByIdAndDelete(req.params.id);
+    if (!user) return res.status(404).json({ message: "User not found" });
     res.json({ message: "User deleted" });
   } catch (err) {
     res.status(500).json({ message: err.message });

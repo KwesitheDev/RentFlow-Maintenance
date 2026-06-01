@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { UserPlus, Wrench } from "lucide-react";
 import Card from "../components/Card";
 import Input from "../components/Input";
 
@@ -9,7 +10,6 @@ export default function Register() {
     name: "",
     email: "",
     password: "",
-    role: "manager",
   });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -28,7 +28,7 @@ export default function Register() {
     try {
       const res = await axiosWithAuth.post("/auth/register", form);
       login(res.data.user, res.data.token);
-      navigate("/");
+      navigate("/app/home");
     } catch (err) {
       setError(err.response?.data?.message || "Registration failed");
     } finally {
@@ -37,37 +37,20 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-r from-violet-50 to-white px-4">
-      {/* Header */}
-      <div className="text-center mb-6">
-        <h2 className="text-4xl font-sans tracking-tight">
-          <span
-            className="text-transparent font-semibold bg-clip-text"
-            style={{
-              backgroundImage: "linear-gradient(90deg, #A78BFA, #C4B5FD)",
-            }}
-          >
-            Rent
-          </span>
-          <span
-            className="text-transparent font-bold bg-clip-text"
-            style={{
-              backgroundImage:
-                "linear-gradient(90deg, #7F00FF, #C084FC, #A78BFA)",
-            }}
-          >
-            Flow
-          </span>
-        </h2>
-        <p className="text-gray-600 mt-2">Maintenance Request Tracker</p>
-      </div>
+    <div className="flex min-h-screen flex-col items-center justify-center bg-slate-100 px-4 py-10">
+      <Link to="/" className="mb-6 flex items-center gap-3">
+        <span className="flex h-11 w-11 items-center justify-center rounded-lg bg-blue-600 text-white">
+          <Wrench className="h-5 w-5" />
+        </span>
+        <span className="text-3xl font-semibold text-slate-950">RentFlow</span>
+      </Link>
 
-      {/* Card */}
-      <Card className="w-full max-w-md p-6 sm:p-8 shadow-lg rounded-2xl bg-white mb-10">
-        <div className=" mb-3">
-          <h2 className="text-2xl  font-semibold text-gray-900">
-            Create account
-          </h2>
+      <Card className="w-full max-w-md border-slate-200 p-6 shadow-xl sm:p-8">
+        <div className="mb-5">
+          <h1 className="text-2xl font-semibold text-gray-900">Create account</h1>
+          <p className="mt-1 text-sm text-slate-500">
+            The first workspace user becomes admin; later signups become managers.
+          </p>
         </div>
 
         {error && (
@@ -84,6 +67,7 @@ export default function Register() {
             type="text"
             placeholder="John Doe"
             value={form.name}
+            required
             onChange={handleChange}
           />
 
@@ -94,6 +78,7 @@ export default function Register() {
             type="email"
             placeholder="you@example.com"
             value={form.email}
+            required
             onChange={handleChange}
           />
 
@@ -102,34 +87,21 @@ export default function Register() {
             id="password"
             name="password"
             type="password"
-            placeholder="●●●●●●●●"
+            placeholder="At least 6 characters"
             value={form.password}
+            required
+            minLength={6}
             onChange={handleChange}
           />
-
-          {/* Role Select */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Role
-            </label>
-            <select
-              name="role"
-              value={form.role}
-              onChange={handleChange}
-              className="input mt-1"
-            >
-              <option value="manager">Manager</option>
-              <option value="admin">Administrator</option>
-            </select>
-          </div>
 
           <button
             type="submit"
             disabled={loading}
-            className={`btn btn-primary w-full ${
+            className={`btn btn-primary flex w-full items-center justify-center gap-2 ${
               loading ? "opacity-70 cursor-not-allowed" : ""
             }`}
           >
+            {!loading && <UserPlus className="h-4 w-4" />}
             {loading ? "Creating account..." : "Create account"}
           </button>
         </form>

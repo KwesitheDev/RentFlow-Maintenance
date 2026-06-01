@@ -1,134 +1,75 @@
-import React, { useState, useEffect } from "react";
-import { Plus, Wrench } from "lucide-react";
+import React, { useEffect, useMemo, useState } from "react";
+import { Plus, RefreshCw, Wrench } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
+import Input from "../components/Input";
+
+const initialForm = {
+  tenantName: "",
+  property: "",
+  issueDescription: "",
+  priority: "medium",
+  status: "pending",
+  assignedTo: "",
+};
+
+const priorityRank = { high: 3, medium: 2, low: 1 };
+const statusRank = { pending: 3, inProgress: 2, resolved: 1 };
 
 export default function RequestsView() {
+  const { axiosWithAuth } = useAuth();
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
-
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+  const [showForm, setShowForm] = useState(false);
+  const [form, setForm] = useState(initialForm);
   const [sortConfig, setSortConfig] = useState({
-    key: "",
-    direction: "asc",
+    key: "createdAt",
+    direction: "desc",
   });
 
-  //  Dummy Data
-  useEffect(() => {
-    const dummyData = [
-      {
-        _id: "1",
-        tenantName: "Sarah Johnson",
-        property: "Oak Street Apartments - A-204",
-        issueDescription: "Kitchen sink leaking",
-        priority: "high",
-        status: "inProgress",
-        assignedTo: "Mike Rodriguez",
-        createdAt: "2026-03-15",
-      },
-      {
-        _id: "2",
-        tenantName: "David Chen",
-        property: "Maple Heights - B-102",
-        issueDescription: "AC not cooling properly",
-        priority: "high",
-        status: "pending",
-        assignedTo: "",
-        createdAt: "2026-03-16",
-      },
-      {
-        _id: "3",
-        tenantName: "Emily Rodriguez",
-        property: "Pine View Condos - C-301",
-        issueDescription: "Light fixture flickering",
-        priority: "medium",
-        status: "pending",
-        assignedTo: "",
-        createdAt: "2026-03-14",
-      },
-      {
-        _id: "4",
-        tenantName: "Michael Brown",
-        property: "Oak Street Apartments - A-105",
-        issueDescription: "Window won't close properly",
-        priority: "medium",
-        status: "inProgress",
-        assignedTo: "James Wilson",
-        createdAt: "2026-03-13",
-      },
-      {
-        _id: "5",
-        tenantName: "Jessica Martinez",
-        property: "Maple Heights - B-205",
-        issueDescription: "Smoke detector beeping",
-        priority: "medium",
-        status: "resolved",
-        assignedTo: "Mike Rodriguez",
-        createdAt: "2026-03-12",
-      },
-      {
-        _id: "6",
-        tenantName: "Robert Taylor",
-        property: "Pine View Condos - C-102",
-        issueDescription: "Carpet stain removal needed",
-        priority: "low",
-        status: "resolved",
-        assignedTo: "Cleaning Crew",
-        createdAt: "2026-03-10",
-      },
-      {
-        _id: "7",
-        tenantName: "Amanda White",
-        property: "Oak Street Apartments - A-310",
-        issueDescription: "Dishwasher not draining",
-        priority: "medium",
-        status: "pending",
-        assignedTo: "",
-        createdAt: "2026-03-17",
-      },
-      {
-        _id: "8",
-        tenantName: "Christopher Lee",
-        property: "Maple Heights - B-401",
-        issueDescription: "Door lock sticking",
-        priority: "high",
-        status: "pending",
-        assignedTo: "",
-        createdAt: "2026-03-18",
-      },
-    ];
+  const fetchRequests = async () => {
+    setError("");
+    try {
+      const res = await axiosWithAuth.get("/requests");
+      setRequests(res.data);
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to load requests");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    setRequests(dummyData);
-    setLoading(false);
+  useEffect(() => {
+    fetchRequests();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  //  Ranking logic
-  const priorityRank = { high: 3, medium: 2, low: 1 };
-  const statusRank = { pending: 3, inProgress: 2, resolved: 1 };
+  const sortedRequests = useMemo(() => {
+    return [...requests].sort((a, b) => {
+      let aVal = a[sortConfig.key];
+      let bVal = b[sortConfig.key];
 
-  //  Sorting
-  const sortedRequests = [...requests].sort((a, b) => {
-    if (!sortConfig.key) return 0;
+      if (sortConfig.key === "priority") {
+        aVal = priorityRank[aVal];
+        bVal = priorityRank[bVal];
+      }
 
-    let aVal = a[sortConfig.key];
-    let bVal = b[sortConfig.key];
+      if (sortConfig.key === "status") {
+        aVal = statusRank[aVal];
+        bVal = statusRank[bVal];
+      }
 
-    if (sortConfig.key === "priority") {
-      aVal = priorityRank[aVal];
-      bVal = priorityRank[bVal];
-    }
+      if (sortConfig.key === "createdAt") {
+        aVal = new Date(aVal);
+        bVal = new Date(bVal);
+      }
 
-    if (sortConfig.key === "status") {
-      aVal = statusRank[aVal];
-      bVal = statusRank[bVal];
-    }
-
-    if (sortConfig.key === "createdAt") {
-      aVal = new Date(aVal);
-      bVal = new Date(bVal);
-    }
-
-    if (aVal < bVal) return sortConfig.direction === "asc" ? -1 : 1;
-    if (aVal > bVal) return sortConfig.direction === "asc" ? 1 : -1;
-    return 0;
-  });
+      if (aVal < bVal) return sortConfig.direction === "asc" ? -1 : 1;
+      if (aVal > bVal) return sortConfig.direction === "asc" ? 1 : -1;
+      return 0;
+    });
+  }, [requests, sortConfig]);
 
   const handleSort = (key) => {
     setSortConfig((prev) => ({
@@ -138,151 +79,229 @@ export default function RequestsView() {
   };
 
   const getArrow = (key) => {
-    if (sortConfig.key !== key) return "⇅";
+    if (sortConfig.key !== key) return "";
     return sortConfig.direction === "asc" ? "↑" : "↓";
   };
 
-  //  UI helpers
-  const getPriorityBadge = (priority) => {
-    const styles = {
-      high: "bg-red-100 text-red-800 border border-red-200",
-      medium: "bg-yellow-100 text-yellow-800 border border-yellow-200",
-      low: "bg-green-100 text-green-800 border border-green-200 ",
-    };
-
-    return (
-      <span
-        className={`px-2 py-1 rounded text-xs font-medium ${styles[priority]}`}
-      >
-        {priority}
-      </span>
-    );
+  const handleChange = (e) => {
+    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const getStatusBadge = (status) => {
-    const styles = {
-      pending: "bg-gray-100 text-gray-800 border border-gray-200",
-      inProgress: "bg-blue-100 text-blue-800 border border-blue-200",
-      resolved: "bg-green-100 text-green-800 border border-green-200",
-    };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setSaving(true);
+    setError("");
 
-    const labels = {
-      pending: "Pending",
-      inProgress: "In Progress",
-      resolved: "Resolved",
+    try {
+      const res = await axiosWithAuth.post("/requests", form);
+      setRequests((prev) => [res.data, ...prev]);
+      setForm(initialForm);
+      setShowForm(false);
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to create request");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const updateStatus = async (request, status) => {
+    try {
+      const res = await axiosWithAuth.put(`/requests/${request._id}`, {
+        ...request,
+        status,
+      });
+      setRequests((prev) =>
+        prev.map((item) => (item._id === request._id ? res.data : item)),
+      );
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to update request");
+    }
+  };
+
+  const getPriorityBadge = (priority) => {
+    const styles = {
+      high: "bg-red-50 text-red-700 border-red-200",
+      medium: "bg-amber-50 text-amber-700 border-amber-200",
+      low: "bg-emerald-50 text-emerald-700 border-emerald-200",
     };
 
     return (
-      <span
-        className={`px-2 py-1 rounded text-xs font-medium ${styles[status]}`}
-      >
-        {labels[status]}
+      <span className={`rounded-md border px-2 py-1 text-xs font-medium ${styles[priority]}`}>
+        {priority}
       </span>
     );
   };
 
   if (loading) {
     return (
-      <div className="text-center py-10">
-        <Wrench className="animate-spin h-8 w-8 bg-blue-100 text-blue-500" />
+      <div className="flex h-64 items-center justify-center">
+        <Wrench className="h-8 w-8 animate-spin text-blue-600" />
       </div>
     );
   }
 
   return (
-    <div>
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold">Maintenance Requests</h2>
+    <div className="space-y-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold text-slate-950">
+            Maintenance Requests
+          </h1>
+          <p className="mt-1 text-sm text-slate-500">
+            Create, sort, assign, and progress repair work.
+          </p>
+        </div>
 
-        <button className="btn btn-primary flex items-center">
-          <Plus className="h-4 w-4 mr-2" />
-          New Request
-        </button>
+        <div className="flex gap-2">
+          <button onClick={fetchRequests} className="btn btn-secondary inline-flex items-center gap-2">
+            <RefreshCw className="h-4 w-4" />
+            Refresh
+          </button>
+          <button
+            onClick={() => setShowForm(true)}
+            className="btn btn-primary inline-flex items-center gap-2"
+          >
+            <Plus className="h-4 w-4" />
+            New Request
+          </button>
+        </div>
       </div>
 
-      <div className="bg-white shadow rounded-lg overflow-hidden">
-        <table className="min-w-full">
-          <thead className="bg-gray-50">
-            <tr className="text-gray-500 uppercase text-xs font-medium tracking-wider">
-              <th className="px-6 py-3 text-left">Tenant</th>
+      {error && (
+        <div className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+          {error}
+        </div>
+      )}
 
-              <th
-                onClick={() => handleSort("property")}
-                className="px-6 py-3 cursor-pointer select-none hover:bg-gray-100"
-              >
-                <div className="flex items-center gap-1">
-                  Property{" "}
-                  <span className="text-xs">{getArrow("property")}</span>
-                </div>
-              </th>
+      {showForm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 px-4">
+          <div className="w-full max-w-2xl rounded-lg bg-white p-6 shadow-xl">
+            <h2 className="text-xl font-semibold">New maintenance request</h2>
+            <form onSubmit={handleSubmit} className="mt-5 grid gap-4 sm:grid-cols-2">
+              <Input
+                label="Tenant name"
+                name="tenantName"
+                value={form.tenantName}
+                required
+                onChange={handleChange}
+              />
+              <Input
+                label="Property"
+                name="property"
+                value={form.property}
+                required
+                onChange={handleChange}
+              />
+              <div className="sm:col-span-2">
+                <Input
+                  label="Issue description"
+                  name="issueDescription"
+                  value={form.issueDescription}
+                  required
+                  onChange={handleChange}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-900">
+                  Priority
+                </label>
+                <select
+                  name="priority"
+                  value={form.priority}
+                  onChange={handleChange}
+                  className="input mt-2"
+                >
+                  <option value="low">Low</option>
+                  <option value="medium">Medium</option>
+                  <option value="high">High</option>
+                </select>
+              </div>
+              <Input
+                label="Assigned to"
+                name="assignedTo"
+                value={form.assignedTo}
+                onChange={handleChange}
+                placeholder="Optional"
+              />
+              <div className="flex justify-end gap-3 sm:col-span-2">
+                <button
+                  type="button"
+                  onClick={() => setShowForm(false)}
+                  className="btn btn-secondary"
+                >
+                  Cancel
+                </button>
+                <button type="submit" disabled={saving} className="btn btn-primary">
+                  {saving ? "Creating..." : "Create request"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
-              <th className="px-6 py-3 text-left">Issue</th>
-
-              <th
-                onClick={() => handleSort("priority")}
-                className="px-6 py-3 cursor-pointer select-none hover:bg-gray-100"
-              >
-                <div className="flex items-center gap-1">
-                  Priority{" "}
-                  <span className="text-xs">{getArrow("priority")}</span>
-                </div>
-              </th>
-
-              <th
-                onClick={() => handleSort("status")}
-                className="px-6 py-3 cursor-pointer select-none hover:bg-gray-100"
-              >
-                <div>
-                  Status <span className="text-xs">{getArrow("status")}</span>
-                </div>{" "}
-              </th>
-
-              <th className="px-6 py-3 text-left">Assigned To</th>
-
-              <th
-                onClick={() => handleSort("createdAt")}
-                className="px-6 py-3 cursor-pointer select-none hover:bg-gray-100"
-              >
-                Date Created {getArrow("createdAt")}
-              </th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {sortedRequests.map((req) => (
-              <tr
-                key={req._id}
-                className="border-t hover:bg-gray-50 text-sm text-wrap"
-              >
-                <td className="px-6 py-4  text-center">{req.tenantName}</td>
-
-                <td className="px-6 py-4  text-center">{req.property}</td>
-
-                <td className="px-6 py-4  text-center">
-                  {req.issueDescription}
-                </td>
-
-                <td className="px-6 py-4 text-center">
-                  {getPriorityBadge(req.priority)}
-                </td>
-
-                <td className=" text-center">{getStatusBadge(req.status)}</td>
-
-                <td className="px-6 py-4  text-center">
-                  {req.assignedTo || "—"}
-                </td>
-
-                <td className="px-6 py-4">
-                  {new Date(req.createdAt).toLocaleDateString("en-US", {
-                    year: "numeric",
-                    month: "short",
-                    day: "numeric",
-                  })}
-                </td>
+      <div className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+        <div className="overflow-x-auto">
+          <table className="min-w-full">
+            <thead className="bg-slate-50">
+              <tr className="text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+                {[
+                  ["tenantName", "Tenant"],
+                  ["property", "Property"],
+                  ["issueDescription", "Issue"],
+                  ["priority", "Priority"],
+                  ["status", "Status"],
+                  ["assignedTo", "Assigned To"],
+                  ["createdAt", "Date Created"],
+                ].map(([key, label]) => (
+                  <th
+                    key={key}
+                    onClick={() => handleSort(key)}
+                    className="cursor-pointer whitespace-nowrap px-5 py-3 hover:bg-slate-100"
+                  >
+                    {label} {getArrow(key)}
+                  </th>
+                ))}
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+
+            <tbody className="divide-y divide-slate-100">
+              {sortedRequests.map((req) => (
+                <tr key={req._id} className="text-sm hover:bg-slate-50">
+                  <td className="whitespace-nowrap px-5 py-4 font-medium text-slate-900">
+                    {req.tenantName}
+                  </td>
+                  <td className="px-5 py-4 text-slate-600">{req.property}</td>
+                  <td className="min-w-64 px-5 py-4 text-slate-600">
+                    {req.issueDescription}
+                  </td>
+                  <td className="px-5 py-4">{getPriorityBadge(req.priority)}</td>
+                  <td className="px-5 py-4">
+                    <select
+                      value={req.status}
+                      onChange={(e) => updateStatus(req, e.target.value)}
+                      className="rounded-md border border-slate-300 bg-white px-2 py-1 text-sm"
+                    >
+                      <option value="pending">Pending</option>
+                      <option value="inProgress">In Progress</option>
+                      <option value="resolved">Resolved</option>
+                    </select>
+                  </td>
+                  <td className="whitespace-nowrap px-5 py-4 text-slate-600">
+                    {req.assignedTo || "Unassigned"}
+                  </td>
+                  <td className="whitespace-nowrap px-5 py-4 text-slate-600">
+                    {new Date(req.createdAt).toLocaleDateString("en-US", {
+                      year: "numeric",
+                      month: "short",
+                      day: "numeric",
+                    })}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

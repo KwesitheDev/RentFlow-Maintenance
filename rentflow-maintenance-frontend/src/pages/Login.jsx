@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-// import { LogIn } from "lucide-react";
+import { LogIn, Wrench } from "lucide-react";
 import Card from "../components/Card";
 import Input from "../components/Input";
 
@@ -12,6 +12,8 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const { login, axiosWithAuth } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const redirectTo = location.state?.from?.pathname || "/app/home";
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -21,7 +23,7 @@ export default function Login() {
     try {
       const res = await axiosWithAuth.post("/auth/login", { email, password });
       login(res.data.user, res.data.token);
-      navigate("/");
+      navigate(redirectTo, { replace: true });
     } catch (err) {
       setError(err.response?.data?.message || "Failed to login");
     } finally {
@@ -30,35 +32,20 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-r from-violet-50 to-white px-4">
-      {/* Header */}
-      <div className="text-center mb-6">
-        <h2 className="text-4xl font-sans tracking-tight">
-          <span
-            className="text-transparent font-semibold bg-clip-text"
-            style={{
-              backgroundImage: "linear-gradient(90deg, #A78BFA, #C4B5FD)",
-            }}
-          >
-            Rent
-          </span>
-          <span
-            className="text-transparent font-bold bg-clip-text"
-            style={{
-              backgroundImage:
-                "linear-gradient(90deg, #7F00FF, #C084FC, #A78BFA)",
-            }}
-          >
-            Flow
-          </span>
-        </h2>
-        <p className="text-gray-600 mt-2">Maintenance Request Tracker</p>
-      </div>
+    <div className="flex min-h-screen flex-col items-center justify-center bg-slate-100 px-4 py-10">
+      <Link to="/" className="mb-6 flex items-center gap-3">
+        <span className="flex h-11 w-11 items-center justify-center rounded-lg bg-blue-600 text-white">
+          <Wrench className="h-5 w-5" />
+        </span>
+        <span className="text-3xl font-semibold text-slate-950">RentFlow</span>
+      </Link>
 
-      {/* Card */}
-      <Card className="w-full max-w-md p-6 sm:p-8 shadow-lg rounded-2xl bg-white ">
-        <div className=" mb-3">
-          <h2 className="font-semibold text-lg text-gray-900">Sign In</h2>
+      <Card className="w-full max-w-md border-slate-200 p-6 shadow-xl sm:p-8">
+        <div className="mb-5">
+          <h1 className="text-2xl font-semibold text-gray-900">Sign in</h1>
+          <p className="mt-1 text-sm text-slate-500">
+            Access your maintenance dashboard.
+          </p>
         </div>
 
         {error && (
@@ -71,28 +58,42 @@ export default function Login() {
           <Input
             label="Email address"
             id="email"
+            name="email"
             type="email"
             placeholder="you@example.com"
             value={email}
+            required
             onChange={(e) => setEmail(e.target.value)}
           />
 
           <Input
             label="Password"
             id="password"
+            name="password"
             type="password"
-            placeholder="●●●●●●●●"
+            placeholder="Enter your password"
             value={password}
+            required
             onChange={(e) => setPassword(e.target.value)}
           />
+
+          <div className="text-right">
+            <Link
+              to="/forgot-password"
+              className="text-sm font-medium text-blue-600 hover:text-blue-700"
+            >
+              Forgot password?
+            </Link>
+          </div>
 
           <button
             type="submit"
             disabled={loading}
-            className={`btn btn-primary w-full ${
+            className={`btn btn-primary flex w-full items-center justify-center gap-2 ${
               loading ? "opacity-70 cursor-not-allowed" : ""
             }`}
           >
+            {!loading && <LogIn className="h-4 w-4" />}
             {loading ? "Signing in..." : "Sign in"}
           </button>
         </form>
@@ -105,29 +106,6 @@ export default function Login() {
           >
             Create Account
           </Link>
-        </p>
-      </Card>
-      {/* {Demo Credentials} */}
-      <Card className="mt-6 w-full max-w-md text-blue-500 bg-gradient-to-bl from-indigo-50 to-white p-4 rounded-lg shadow-sm">
-        <p className="mb-1 text-sm text-indigo-500">Demo Credentials:</p>
-        <p className="text-sm font-medium">
-          Admin:{" "}
-          <span className="font-mono text-xs">
-            {" "}
-            <span className="font-semibold">email:</span> admin@rentflow
-          </span>
-          {"  "}
-          <span className="font-mono text-xs">
-            <span className="font-semibold">/ password:</span> admin123
-          </span>
-          <br />
-          <span className="">Manager:</span>{" "}
-          <span className="font-mono text-xs">
-            <span className="font-semibold">email:</span> manager@rentflow
-          </span>
-          <span className=" ml-1 text-xs">
-            <span className="font-semibold">/ password:</span> manager123
-          </span>
         </p>
       </Card>
     </div>

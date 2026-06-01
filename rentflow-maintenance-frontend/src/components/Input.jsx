@@ -2,6 +2,7 @@ import React from "react";
 
 const Input = ({
   label,
+  id,
   placeholder,
   type,
   name,
@@ -16,13 +17,14 @@ const Input = ({
       {label && (
         <label
           className={`block text-sm font-medium text-gray-900 ${labelClassName}`}
-          htmlFor={name}
+          htmlFor={id || name}
         >
           {label}
         </label>
       )}
       <input
         type={type}
+        id={id || name}
         name={name}
         value={value}
         placeholder={placeholder}
