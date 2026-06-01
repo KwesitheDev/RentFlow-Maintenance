@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { LogIn, Wrench } from "lucide-react";
-import Card from "../components/Card";
+import { LogIn } from "lucide-react";
+import AuthShell from "../components/AuthShell";
 import Input from "../components/Input";
 
 export default function Login() {
@@ -32,24 +32,24 @@ export default function Login() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-slate-100 px-4 py-10">
-      <Link to="/" className="mb-6 flex items-center gap-3">
-        <span className="flex h-11 w-11 items-center justify-center rounded-lg bg-blue-600 text-white">
-          <Wrench className="h-5 w-5" />
-        </span>
-        <span className="text-3xl font-semibold text-slate-950">RentFlow</span>
-      </Link>
-
-      <Card className="w-full max-w-md border-slate-200 p-6 shadow-xl sm:p-8">
-        <div className="mb-5">
-          <h1 className="text-2xl font-semibold text-gray-900">Sign in</h1>
-          <p className="mt-1 text-sm text-slate-500">
-            Access your maintenance dashboard.
-          </p>
-        </div>
-
+    <AuthShell
+      eyebrow="Welcome back"
+      title="Sign in to RentFlow"
+      subtitle="Open your maintenance workspace and pick up tenant repairs where your team left off."
+      footer={
+        <p className="text-sm text-slate-600">
+          Don't have an account?{" "}
+          <Link
+            to="/register"
+            className="font-semibold text-blue-700 hover:text-blue-800"
+          >
+            Create account
+          </Link>
+        </p>
+      }
+    >
         {error && (
-          <div className="mb-4 bg-red-50 border-l-4 border-red-500 p-4 text-red-700 text-sm">
+          <div className="mb-5 rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">
             {error}
           </div>
         )}
@@ -64,6 +64,7 @@ export default function Login() {
             value={email}
             required
             onChange={(e) => setEmail(e.target.value)}
+            inputClassName="h-11"
           />
 
           <Input
@@ -75,12 +76,13 @@ export default function Login() {
             value={password}
             required
             onChange={(e) => setPassword(e.target.value)}
+            inputClassName="h-11"
           />
 
           <div className="text-right">
             <Link
               to="/forgot-password"
-              className="text-sm font-medium text-blue-600 hover:text-blue-700"
+              className="text-sm font-semibold text-blue-700 hover:text-blue-800"
             >
               Forgot password?
             </Link>
@@ -97,17 +99,6 @@ export default function Login() {
             {loading ? "Signing in..." : "Sign in"}
           </button>
         </form>
-
-        <p className="mt-6 text-center text-sm text-gray-600">
-          Don't have an account?{" "}
-          <Link
-            to="/register"
-            className="font-medium text-blue-600 hover:text-blue-500"
-          >
-            Create Account
-          </Link>
-        </p>
-      </Card>
-    </div>
+    </AuthShell>
   );
 }

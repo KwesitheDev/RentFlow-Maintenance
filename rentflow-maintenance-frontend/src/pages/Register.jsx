@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { UserPlus, Wrench } from "lucide-react";
-import Card from "../components/Card";
+import { UserPlus } from "lucide-react";
+import AuthShell from "../components/AuthShell";
 import Input from "../components/Input";
 
 export default function Register() {
@@ -37,24 +37,24 @@ export default function Register() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-slate-100 px-4 py-10">
-      <Link to="/" className="mb-6 flex items-center gap-3">
-        <span className="flex h-11 w-11 items-center justify-center rounded-lg bg-blue-600 text-white">
-          <Wrench className="h-5 w-5" />
-        </span>
-        <span className="text-3xl font-semibold text-slate-950">RentFlow</span>
-      </Link>
-
-      <Card className="w-full max-w-md border-slate-200 p-6 shadow-xl sm:p-8">
-        <div className="mb-5">
-          <h1 className="text-2xl font-semibold text-gray-900">Create account</h1>
-          <p className="mt-1 text-sm text-slate-500">
-            The first workspace user becomes admin; later signups become managers.
-          </p>
-        </div>
-
+    <AuthShell
+      eyebrow="New workspace"
+      title="Create your account"
+      subtitle="The first workspace user becomes admin. Later signups start as managers and can be promoted by an admin."
+      footer={
+        <p className="text-sm text-slate-600">
+          Already have an account?{" "}
+          <Link
+            to="/login"
+            className="font-semibold text-blue-700 hover:text-blue-800"
+          >
+            Sign in
+          </Link>
+        </p>
+      }
+    >
         {error && (
-          <div className="mb-4 bg-red-50 border-l-4 border-red-500 p-4 text-red-700 text-sm">
+          <div className="mb-5 rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">
             {error}
           </div>
         )}
@@ -69,6 +69,7 @@ export default function Register() {
             value={form.name}
             required
             onChange={handleChange}
+            inputClassName="h-11"
           />
 
           <Input
@@ -80,6 +81,7 @@ export default function Register() {
             value={form.email}
             required
             onChange={handleChange}
+            inputClassName="h-11"
           />
 
           <Input
@@ -92,6 +94,7 @@ export default function Register() {
             required
             minLength={6}
             onChange={handleChange}
+            inputClassName="h-11"
           />
 
           <button
@@ -105,17 +108,6 @@ export default function Register() {
             {loading ? "Creating account..." : "Create account"}
           </button>
         </form>
-
-        <p className="mt-6 text-center text-sm text-gray-600">
-          Already have an account?{" "}
-          <Link
-            to="/login"
-            className="font-medium text-blue-600 hover:text-blue-500"
-          >
-            Sign in
-          </Link>
-        </p>
-      </Card>
-    </div>
+    </AuthShell>
   );
 }
