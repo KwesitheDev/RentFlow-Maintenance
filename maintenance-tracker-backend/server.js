@@ -12,6 +12,7 @@ app.use(
       ...(process.env.FRONTEND_ORIGIN ? [process.env.FRONTEND_ORIGIN] : []),
       "http://localhost:3000", //local development
       "https://rentflow-maintenance.vercel.app", //vercel deployement
+      "https://rentflow.kwesithedev.com/", //kwesithedev deployement
     ],
   }),
 );
