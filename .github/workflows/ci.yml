@@ -1,0 +1,17 @@
+name: Verify
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node --test scripts/keep-alive.test.cjs
+      - run: npm ci && npm test
+        working-directory: maintenance-tracker-backend
+      - run: npm ci && CI=true npm test -- --watchAll=false --runInBand && npm run build
+        working-directory: rentflow-maintenance-frontend

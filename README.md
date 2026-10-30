@@ -1,3 +1,7 @@
+> Implementation status (2026-10-30): A disposable four-role demo is available at `/demo` after deploying this branch. Public deployment has not been verified. Production organization isolation and the full transformation brief remain incomplete; see [readiness](docs/PRODUCTION_READINESS.md).
+>
+> Start with [demo deployment and access controls](docs/DEMO.md), [deployment and optional free-tier health probe](docs/DEPLOYMENT.md), and [testing](docs/TESTING.md). Use Node.js 22. Public registration is disabled, and password reset delivery requires a configured trusted provider.
+
 # RentFlow Maintenance Tracker
 
 A comprehensive full-stack application for managing maintenance requests in rental properties. Built with React for the frontend and Node.js/Express for the backend, this system allows property managers and administrators to efficiently track, assign, and resolve maintenance issues.
@@ -39,7 +43,7 @@ A comprehensive full-stack application for managing maintenance requests in rent
 
 Before running this application, make sure you have the following installed:
 
-- **Node.js** (v16 or higher)
+- **Node.js** (v22)
 - **npm** or **yarn**
 - **MongoDB** (local installation or cloud service like MongoDB Atlas)
 
@@ -48,7 +52,7 @@ Before running this application, make sure you have the following installed:
 1. **Clone the repository**
 
    ```bash
-   git clone https://github.com/your-username/rentflow-maintenance.git
+   git clone https://github.com/KwesitheDev/RentFlow-Maintenance.git
    cd rentflow-maintenance
    ```
 

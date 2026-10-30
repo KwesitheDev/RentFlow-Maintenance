@@ -1,0 +1,20 @@
+name: Optional free-tier health probe
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '*/10 * * * *'
+permissions:
+  contents: read
+jobs:
+  probe:
+    if: vars.RENTFLOW_HEALTH_URL != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node scripts/keep-alive.mjs
+        env:
+          RENTFLOW_HEALTH_URL: ${{ vars.RENTFLOW_HEALTH_URL }}
