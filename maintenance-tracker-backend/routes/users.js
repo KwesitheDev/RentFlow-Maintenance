@@ -8,7 +8,7 @@ router.use(adminMiddleware);
 
 router.get("/", async (req, res) => {
   try {
-    const users = await User.find().select("-password");
+    const users = await User.find().select("name email role");
     res.json(users);
   } catch (err) {
     res.status(500).json({ message: err.message });

@@ -22,44 +22,11 @@ const signToken = (user) =>
   );
 
 router.post("/register", async (req, res) => {
-  try {
-    const { name, email, password } = req.body;
-
-    if (!name || !email || !password) {
-      return res
-        .status(400)
-        .json({ message: "Name, email and password are required" });
-    }
-
-    let user = await User.findOne({ email: email.toLowerCase() });
-
-    if (user) {
-      return res.status(400).json({ message: "User already exists" });
-    }
-
-    const userCount = await User.countDocuments();
-    user = new User({
-      name,
-      email,
-      password,
-      role: userCount === 0 ? "admin" : "manager",
+  return res
+    .status(403)
+    .json({
+      message: "Public registration is disabled. Contact your administrator.",
     });
-    await user.save();
-
-    const token = signToken(user);
-
-    res.status(201).json({
-      token,
-      user: sanitizeUser(user),
-    });
-  } catch (err) {
-    console.error("REGISTER ERROR:", err.message);
-    console.error(err.stack);
-    res.status(500).json({
-      message: "Server error during registration",
-      detail: err.message,
-    });
-  }
 });
 
 router.post("/login", async (req, res) => {
@@ -168,33 +135,14 @@ router.post("/change-password", authMiddleware, async (req, res) => {
   }
 });
 
-router.post("/forgot-password", async (req, res) => {
-  try {
-    const { email } = req.body;
-    if (!email) return res.status(400).json({ message: "Email is required" });
-
-    const user = await User.findOne({ email: email.toLowerCase() });
-    if (!user) {
-      return res.json({
-        message: "If that email exists, a reset code has been created.",
-      });
-    }
-
-    const resetToken = crypto.randomBytes(24).toString("hex");
-    user.resetPasswordToken = crypto
-      .createHash("sha256")
-      .update(resetToken)
-      .digest("hex");
-    user.resetPasswordExpires = Date.now() + 15 * 60 * 1000;
-    await user.save();
-
-    res.json({
-      message: "Reset code created. Use it to set a new password.",
-      resetToken,
+// Reset delivery must be configured through a trusted email provider. Never expose secrets.
+router.post("/forgot-password", (req, res) => {
+  res
+    .status(503)
+    .json({
+      message:
+        "Password reset delivery is not configured. Contact your administrator.",
     });
-  } catch (err) {
-    res.status(500).json({ message: "Server error creating reset code" });
-  }
 });
 
 router.post("/reset-password", async (req, res) => {
@@ -222,7 +170,9 @@ router.post("/reset-password", async (req, res) => {
     });
 
     if (!user) {
-      return res.status(400).json({ message: "Reset code is invalid or expired" });
+      return res
+        .status(400)
+        .json({ message: "Reset code is invalid or expired" });
     }
 
     user.password = newPassword;
