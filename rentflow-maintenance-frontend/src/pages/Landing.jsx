@@ -66,10 +66,10 @@ export default function Landing() {
               Sign in
             </Link>
             <Link
-              to="/register"
+              to="/demo"
               className="btn bg-white text-slate-950 hover:bg-slate-100"
             >
-              Get started
+              Try the demo
             </Link>
           </nav>
         </header>
@@ -90,10 +90,10 @@ export default function Landing() {
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link
-                to="/register"
+                to="/demo"
                 className="btn btn-primary inline-flex items-center gap-2 px-5 py-3"
               >
-                Start tracking
+                Explore all four roles
                 <ArrowRight className="h-4 w-4" />
               </Link>
               <Link
@@ -112,7 +112,7 @@ export default function Landing() {
                 <h2 className="text-xl font-semibold">Maintenance command</h2>
               </div>
               <span className="rounded-md bg-emerald-50 px-3 py-1 text-sm font-medium text-emerald-700">
-                Live
+                Preview
               </span>
             </div>
 

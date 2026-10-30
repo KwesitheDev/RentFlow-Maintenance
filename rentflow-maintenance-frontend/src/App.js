@@ -7,6 +7,7 @@ import {
 } from "react-router-dom";
 import { Wrench } from "lucide-react";
 import { AuthProvider, useAuth } from "./context/AuthContext";
+import { lazy, Suspense } from "react";
 import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -17,6 +18,8 @@ import Settings from "./pages/Settings";
 import RequestsView from "./pages/RequestsView";
 import UsersView from "./pages/UsersView";
 import Properties from "./pages/Properties";
+
+const Demo = lazy(() => import("./pages/Demo"));
 
 function LoadingScreen() {
   return (
@@ -56,6 +59,14 @@ function App() {
       <Router>
         <Routes>
           <Route path="/" element={<Landing />} />
+          <Route
+            path="/demo"
+            element={
+              <Suspense fallback={<LoadingScreen />}>
+                <Demo />
+              </Suspense>
+            }
+          />
           <Route
             path="/login"
             element={
