@@ -1,201 +1,105 @@
-> Implementation status (2026-10-30): A disposable four-role demo is available at `/demo` after deploying this branch. Public deployment has not been verified. Production organization isolation and the full transformation brief remain incomplete; see [readiness](docs/PRODUCTION_READINESS.md).
->
-> Start with [demo deployment and access controls](docs/DEMO.md), [deployment and optional free-tier health probe](docs/DEPLOYMENT.md), and [testing](docs/TESTING.md). Use Node.js 22. Public registration is disabled, and password reset delivery requires a configured trusted provider.
+# RentFlow Maintenance
 
-# RentFlow Maintenance Tracker
+A property maintenance workspace built with React, Express and MongoDB. RentFlow brings request intake, priorities, assignments and repair updates into a consistent interface, with an isolated four-role demonstration environment.
 
-A comprehensive full-stack application for managing maintenance requests in rental properties. Built with React for the frontend and Node.js/Express for the backend, this system allows property managers and administrators to efficiently track, assign, and resolve maintenance issues.
+## Explore the product
 
-## Features
+- **Public product site:** homepage, features, manager and tenant workflows, reporting, FAQ and contact.
+- **Interactive demo (`/demo`):** owner/administrator, property manager, tenant and contractor perspectives, with fictional properties, scoped access, a full repair lifecycle, notifications, reports and disposable sessions.
+- **Existing customer workspace (`/app`):** administrator and manager accounts, maintenance queues, assignments, notes, property activity, people management and account settings.
 
-- **User Authentication**: Secure login and registration with JWT tokens
-- **Role-Based Access**: Admin and Manager roles with different permissions
-- **Maintenance Request Management**: Create, view, update, and track maintenance requests
-- **Property Management**: Organize requests by property
-- **Priority System**: Low, medium, and high priority levels for requests
-- **Status Tracking**: Monitor request progress (pending, in progress, resolved)
-- **Assignment System**: Assign requests to specific users
-- **Notes System**: Add detailed notes to maintenance requests
-- **Responsive Design**: Mobile-friendly interface built with Tailwind CSS
-- **Real-time Analytics**: Vercel Analytics integration for usage insights
+Demo capabilities are broader than the existing production domain. Production organization isolation, extended production roles, invitations and secure attachments are still pending. Public registration is closed; self-service email recovery is not configured. See [production readiness](docs/PRODUCTION_READINESS.md). Public deployment of these changes has not been verified.
 
-## Tech Stack
+## Local setup
 
-### Frontend
+Use Node.js 22, npm and MongoDB for production-workspace functionality. The disposable demo itself does not read MongoDB.
 
-- **React 19** - Modern JavaScript library for building user interfaces
-- **React Router** - Declarative routing for React
-- **Tailwind CSS** - Utility-first CSS framework
-- **Axios** - HTTP client for API requests
-- **Lucide React** - Beautiful icon library
-- **Vercel Analytics** - Web analytics and performance monitoring
+```bash
+git clone https://github.com/KwesitheDev/RentFlow-Maintenance.git
+cd RentFlow-Maintenance
+```
 
-### Backend
+Run the remaining commands from the repository root. Install dependencies in each application:
 
-- **Node.js** - JavaScript runtime
-- **Express.js** - Web application framework
-- **MongoDB** - NoSQL database with Mongoose ODM
-- **JWT** - JSON Web Tokens for authentication
-- **bcryptjs** - Password hashing
-- **CORS** - Cross-origin resource sharing
+```bash
+npm ci --prefix maintenance-tracker-backend
+```
 
-## Prerequisites
+```bash
+npm ci --prefix rentflow-maintenance-frontend
+```
 
-Before running this application, make sure you have the following installed:
-
-- **Node.js** (v22)
-- **npm** or **yarn**
-- **MongoDB** (local installation or cloud service like MongoDB Atlas)
-
-## Installation
-
-1. **Clone the repository**
-
-   ```bash
-   git clone https://github.com/KwesitheDev/RentFlow-Maintenance.git
-   cd rentflow-maintenance
-   ```
-
-2. **Backend Setup**
-
-   ```bash
-   cd maintenance-tracker-backend
-   npm install
-   ```
-
-3. **Frontend Setup**
-   ```bash
-   cd ../rentflow-maintenance-frontend
-   npm install
-   ```
-
-## Environment Configuration
-
-### Backend Environment Variables
-
-Create a `.env` file in the `maintenance-tracker-backend` directory:
+Configure the backend from `maintenance-tracker-backend/.env.example`:
 
 ```env
 MONGO_URI=mongodb://localhost:27017/rentflow-maintenance
-JWT_SECRET=your-super-secret-jwt-key-here
+JWT_SECRET=replace-with-a-long-random-secret
 PORT=5000
 NODE_ENV=development
+FRONTEND_ORIGIN=http://localhost:3000
 ```
 
-### Frontend Environment Variables
-
-Create a `.env` file in the `rentflow-maintenance-frontend` directory:
+Configure the frontend from `rentflow-maintenance-frontend/.env.example`:
 
 ```env
 REACT_APP_API_URL=http://localhost:5000/api
+REACT_APP_SITE_URL=https://rentflow-maintenance.vercel.app
 ```
 
-## Running the Application
+`REACT_APP_SITE_URL` controls public canonical URLs, social metadata and sitemap generation. Set it to the actual public HTTPS origin before deploying; it is separate from the API URL. Never put server secrets in frontend environment variables.
 
-### Development Mode
+Run the backend and frontend in separate terminals:
 
-1. **Start the Backend Server**
-
-   ```bash
-   cd maintenance-tracker-backend
-   npm run dev
-   ```
-
-   The server will start on `http://localhost:5000`
-
-2. **Start the Frontend Development Server**
-   ```bash
-   cd rentflow-maintenance-frontend
-   npm start
-   ```
-   The app will open in your browser at `http://localhost:3000`
-
-### Production Build
-
-1. **Build the Frontend**
-
-   ```bash
-   cd rentflow-maintenance-frontend
-   npm run build
-   ```
-
-2. **Start the Backend in Production**
-   ```bash
-   cd maintenance-tracker-backend
-   npm start
-   ```
-
-## API Endpoints
-
-### Authentication
-
-- `POST /api/auth/register` - Register a new user
-- `POST /api/auth/login` - Login user
-- `GET /api/auth/me` - Get current user info
-
-### Users
-
-- `GET /api/users` - Get all users (Admin only)
-- `PUT /api/users/:id` - Update user (Admin only)
-- `DELETE /api/users/:id` - Delete user (Admin only)
-
-### Maintenance Requests
-
-- `GET /api/requests` - Get all requests
-- `POST /api/requests` - Create new request
-- `PUT /api/requests/:id` - Update request
-- `DELETE /api/requests/:id` - Delete request
-
-## Project Structure
-
-```
-rentflow-maintenance/
-├── maintenance-tracker-backend/
-│   ├── middleware/
-│   │   └── auth.js
-│   ├── models/
-│   │   ├── User.js
-│   │   └── Request.js
-│   ├── routes/
-│   │   ├── auth.js
-│   │   ├── requests.js
-│   │   └── users.js
-│   ├── package.json
-│   └── server.js
-├── rentflow-maintenance-frontend/
-│   ├── public/
-│   ├── src/
-│   │   ├── components/
-│   │   ├── context/
-│   │   ├── pages/
-│   │   ├── App.js
-│   │   └── index.js
-│   ├── package.json
-│   └── tailwind.config.js
-└── README.md
+```bash
+npm run dev --prefix maintenance-tracker-backend
 ```
 
-## User Roles
+```bash
+npm start --prefix rentflow-maintenance-frontend
+```
 
-- **Admin**: Full access to all features including user management
-- **Manager**: Can manage maintenance requests and properties
+Open `http://localhost:3000` or `http://localhost:3000/demo`. Existing customer accounts can sign in; public account creation is intentionally disabled.
+
+## Build and verify
+
+```bash
+npm test --prefix maintenance-tracker-backend
+npm start --prefix maintenance-tracker-backend
+```
+
+```bash
+CI=true npm test --prefix rentflow-maintenance-frontend -- --watchAll=false --runInBand
+npm run build --prefix rentflow-maintenance-frontend
+```
+
+The complete frontend build pre-renders seven public pages, generates sitemap/robots files and checks metadata, headings, internal links and private indexing rules. Deploy the generated `build` folder with the included Vercel routing configuration. Other hosts need equivalent public HTML routing, a private SPA shell and proper 404 responses. See [UI, UX and SEO](docs/UI_UX_AND_SEO.md) for implementation and optional browser QA instructions.
+
+## Operations and documentation
+
+- [Demo deployment, seeding, access controls and reset](docs/DEMO.md)
+- [Deployment and optional free-tier health probe](docs/DEPLOYMENT.md)
+- [Architecture](docs/ARCHITECTURE.md) and [data model](docs/DATA_MODEL.md)
+- [Security](docs/SECURITY.md), [testing](docs/TESTING.md) and [readiness](docs/PRODUCTION_READINESS.md)
+- [Production audit](docs/PRODUCTION_AUDIT.md), [implementation plan](docs/IMPLEMENTATION_PLAN.md) and [change log](docs/IMPLEMENTATION_LOG.md)
+
+The optional external GitHub scheduler calls `/api/health`, which pings MongoDB. Set repository variable `RENTFLOW_HEALTH_URL` after deployment to enable it. This is best-effort monitoring and cannot guarantee free-tier uptime or prevent provider suspension.
+
+## API overview
+
+Legacy production endpoints use bearer JWT authentication; `/api/users` requires an administrator. Request lists currently return up to 500 recent records.
+
+| Area | Endpoints |
+| --- | --- |
+| Authentication | `POST /api/auth/login`, `GET /api/auth/me`, `PUT /api/auth/profile`, `POST /api/auth/change-password` |
+| Users | `GET/POST /api/users`, `PUT/DELETE /api/users/:id` |
+| Requests | `GET/POST /api/requests`, `PUT /api/requests/:id` |
+| Demo | `POST /api/demo/sessions`, then authenticated workspace, role, request, notification and reset routes described in DEMO.md |
+| Health | `GET /api/health` |
+
+The public registration and reset-secret issuance endpoints are disabled. There is no legacy request-delete endpoint. Demo tokens cannot authenticate against production APIs.
 
 ## Contributing
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+Create a feature branch, make focused commits, run the relevant checks and open a pull request. Report general feedback through [GitHub issues](https://github.com/KwesitheDev/RentFlow-Maintenance/issues). Do not include credentials, private tenant records or sensitive security details in public issues.
 
-## License
-
-This project is licensed under the ISC License.
-
-## Support
-
-For support, please contact the KwesiTheDev or create an issue in the repository.
-
----
-
-Built with ❤️ for efficient property maintenance management
+Licensed under ISC.

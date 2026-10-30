@@ -13,3 +13,7 @@ A process on a paused server cannot wake itself. Scheduling is best-effort and d
 ## Recovery
 
 Back up MongoDB through the configured provider before production changes; document retention and access in the operator's runbook. Restore to a separate database and verify account/request counts and permissions before switching traffic. No backup or restoration was executed here. Demo data is intentionally disposable and must never be restored into customer collections. Roll back frontend/backend together if their APIs diverge; restarting the backend safely resets only process-local demo workspaces.
+
+## Product HTML and SEO routing
+
+The frontend npm build now includes a postbuild renderer and SEO checks. Deploy the whole `build` directory and preserve the frontend `vercel.json` configuration. Set `REACT_APP_SITE_URL` to the actual public origin before building. Public routes use their generated HTML; app routes use a noindex shell; unknown routes must return HTTP 404. The earlier generic instruction to rewrite every URL to `/index.html` is superseded. See [UI_UX_AND_SEO.md](UI_UX_AND_SEO.md).

@@ -1,6 +1,4 @@
 User-agent: *
-Disallow: /app
-Disallow: /demo
-Disallow: /login
-Disallow: /register
-Disallow: /forgot-password
+Allow: /
+Disallow: /api/
+Sitemap: https://rentflow-maintenance.vercel.app/sitemap.xml

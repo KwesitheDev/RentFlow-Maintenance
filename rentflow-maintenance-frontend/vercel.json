@@ -1,7 +1,154 @@
 {
-  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }],
+  "trailingSlash": false,
+  "rewrites": [
+    {
+      "source": "/features",
+      "destination": "/features/index.html"
+    },
+    {
+      "source": "/property-managers",
+      "destination": "/property-managers/index.html"
+    },
+    {
+      "source": "/tenant-portal",
+      "destination": "/tenant-portal/index.html"
+    },
+    {
+      "source": "/reporting",
+      "destination": "/reporting/index.html"
+    },
+    {
+      "source": "/faq",
+      "destination": "/faq/index.html"
+    },
+    {
+      "source": "/contact",
+      "destination": "/contact/index.html"
+    },
+    {
+      "source": "/demo",
+      "destination": "/demo/index.html"
+    },
+    {
+      "source": "/login",
+      "destination": "/login/index.html"
+    },
+    {
+      "source": "/register",
+      "destination": "/register/index.html"
+    },
+    {
+      "source": "/forgot-password",
+      "destination": "/forgot-password/index.html"
+    },
+    {
+      "source": "/app",
+      "destination": "/workspace-shell.html"
+    },
+    {
+      "source": "/app/:path*",
+      "destination": "/workspace-shell.html"
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/home",
+      "destination": "/app/home",
+      "permanent": true
+    },
+    {
+      "source": "/requests",
+      "destination": "/app/requests",
+      "permanent": true
+    },
+    {
+      "source": "/properties",
+      "destination": "/app/properties",
+      "permanent": true
+    },
+    {
+      "source": "/users",
+      "destination": "/app/users",
+      "permanent": true
+    },
+    {
+      "source": "/settings",
+      "destination": "/app/settings",
+      "permanent": true
+    }
+  ],
   "headers": [
-    { "source": "/app/:path*", "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }] },
-    { "source": "/demo", "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }] }
+    {
+      "source": "/app",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
+      ]
+    },
+    {
+      "source": "/app/:path*",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
+      ]
+    },
+    {
+      "source": "/demo",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
+      ]
+    },
+    {
+      "source": "/login",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
+      ]
+    },
+    {
+      "source": "/register",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
+      ]
+    },
+    {
+      "source": "/forgot-password",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
+      ]
+    },
+    {
+      "source": "/workspace-shell.html",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
+      ]
+    },
+    {
+      "source": "/404.html",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
+      ]
+    }
   ]
 }
