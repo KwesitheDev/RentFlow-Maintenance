@@ -9,6 +9,8 @@ import { Wrench } from "lucide-react";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { lazy, Suspense } from "react";
 import Landing from "./pages/Landing";
+import RouteMeta from "./components/RouteMeta";
+import { ProductPage, FAQ, Contact, NotFound } from "./pages/ProductPages";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import ForgotPassword from "./pages/ForgotPassword";
@@ -23,7 +25,11 @@ const Demo = lazy(() => import("./pages/Demo"));
 
 function LoadingScreen() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-50">
+    <div
+      role="status"
+      aria-label="Loading workspace"
+      className="flex min-h-screen items-center justify-center bg-slate-50"
+    >
       <Wrench className="h-8 w-8 animate-spin text-blue-600" />
     </div>
   );
@@ -57,8 +63,23 @@ function App() {
   return (
     <AuthProvider>
       <Router>
+        <RouteMeta />
         <Routes>
           <Route path="/" element={<Landing />} />
+          {[
+            "/features",
+            "/property-managers",
+            "/tenant-portal",
+            "/reporting",
+          ].map((path) => (
+            <Route
+              key={path}
+              path={path}
+              element={<ProductPage path={path} />}
+            />
+          ))}
+          <Route path="/faq" element={<FAQ />} />
+          <Route path="/contact" element={<Contact />} />
           <Route
             path="/demo"
             element={
@@ -129,7 +150,7 @@ function App() {
             element={<Navigate to="/app/settings" replace />}
           />
           <Route path="/users" element={<Navigate to="/app/users" replace />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </Router>
     </AuthProvider>

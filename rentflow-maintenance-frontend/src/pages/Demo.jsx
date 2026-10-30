@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
+import Brand from "../components/Brand";
+import { Building2, ClipboardList, House, Wrench } from "lucide-react";
 const api = axios.create({
   baseURL: `${process.env.REACT_APP_API_URL || "https://rentflow-maintenance-backend.onrender.com/api"}/demo`,
   timeout: 65000,
@@ -22,6 +24,12 @@ const roles = {
     "Contractor / Technician",
     "View assigned jobs, report blockers and record resolution details.",
   ],
+};
+const roleIcons = {
+  admin: Building2,
+  manager: ClipboardList,
+  tenant: House,
+  contractor: Wrench,
 };
 const transitions = {
   submitted: ["reviewed", "cancelled"],
@@ -84,6 +92,16 @@ export default function Demo() {
       }
       setNotice("Saved successfully.");
     } catch (e) {
+      if (e.response?.status === 401) {
+        sessionStorage.removeItem("rentflow-demo");
+        setToken(null);
+        setData(null);
+      }
+      if (e.response?.status === 409 && token) {
+        try {
+          setData((await api.get("/workspace", { headers })).data);
+        } catch (_) {}
+      }
       setError(
         e.response?.data?.message ||
           "Cannot reach the demo server. Please retry.",
@@ -101,6 +119,18 @@ export default function Demo() {
   }
   const manage = data && ["admin", "manager"].includes(data.role);
   const current = data?.requests.find((r) => r.id === selected);
+  const currentId = current?.id;
+  useEffect(() => {
+    if (!selected || !currentId) return;
+    const panel = document.getElementById("demo-request-detail");
+    panel?.scrollIntoView?.({
+      behavior: window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches
+        ? "auto"
+        : "smooth",
+      block: "start",
+    });
+    panel?.focus({ preventScroll: true });
+  }, [selected, currentId]);
   async function update(r, payload) {
     await action(() =>
       api.patch(
@@ -143,18 +173,16 @@ export default function Demo() {
   const inputClass =
     "w-full rounded border border-slate-300 bg-white p-3 text-slate-900";
   return (
-    <main className="min-h-screen bg-slate-50 text-slate-900">
+    <main id="main-content" className="demo-shell min-h-screen text-slate-900">
       <div className="mx-auto max-w-6xl space-y-6 p-4 md:p-8">
         <header className="flex flex-wrap items-center justify-between gap-4">
-          <Link to="/" className="text-xl font-bold text-blue-700">
-            RentFlow
-          </Link>
+          <Brand />
           <h1 className="text-2xl font-semibold">
-            Explore the maintenance demo
+            One repair. Four perspectives.
           </h1>
           <Link to="/login">Customer sign in</Link>
         </header>
-        <p className="rounded-lg border border-blue-200 bg-blue-50 p-4">
+        <p className="rounded-xl border border-[#dce5d4] bg-[#eef3e8] p-5 text-xs leading-7 text-[#52694c]">
           Fictional data · Private disposable workspace · Expires after one
           hour. Switch roles to follow the same repair from submission through
           closure. External invitations, email, uploads and production access
@@ -168,29 +196,49 @@ export default function Demo() {
             {error}
           </p>
         )}
-        {notice && <p role="status">{notice}</p>}
+        {notice && (
+          <p
+            role="status"
+            className="rounded-lg bg-emerald-50 p-3 text-sm text-emerald-800"
+          >
+            {notice}
+          </p>
+        )}
+        {busy && (
+          <p role="status" className="text-sm text-slate-500">
+            Connecting to your workspace… A sleeping server may take a minute.
+          </p>
+        )}
         {!token ? (
           <section>
             <h2 className="mb-4 text-xl font-semibold">
               Choose your perspective. No signup required.
             </h2>
             <div className="grid gap-4 md:grid-cols-2">
-              {Object.entries(roles).map(([role, [name, description]]) => (
-                <article
-                  className="rounded-xl border bg-white p-6 shadow-sm"
-                  key={role}
-                >
-                  <h3 className="text-xl font-semibold">{name}</h3>
-                  <p className="my-4 text-slate-600">{description}</p>
-                  <button
-                    disabled={busy}
-                    className="btn btn-primary"
-                    onClick={() => launch(role)}
+              {Object.entries(roles).map(([role, [name, description]]) => {
+                const Icon = roleIcons[role];
+                return (
+                  <article
+                    className="rounded-xl border bg-white p-6 shadow-sm"
+                    key={role}
                   >
-                    {busy ? "Starting demo…" : `Launch ${name} demo`}
-                  </button>
-                </article>
-              ))}
+                    <span className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-[#edf3e6] text-[#5a7f55]">
+                      <Icon size={24} aria-hidden="true" />
+                    </span>
+                    <h3 className="text-xl font-semibold">{name}</h3>
+                    <p className="mb-6 mt-3 text-sm leading-7 text-slate-500">
+                      {description}
+                    </p>
+                    <button
+                      disabled={busy}
+                      className="btn btn-primary"
+                      onClick={() => launch(role)}
+                    >
+                      {busy ? "Starting demo…" : `Launch ${name} demo`}
+                    </button>
+                  </article>
+                );
+              })}
             </div>
           </section>
         ) : !data ? (
@@ -201,7 +249,7 @@ export default function Demo() {
             </p>
             {error && (
               <button
-                className="btn border"
+                className="btn btn-secondary"
                 onClick={() => {
                   sessionStorage.removeItem("rentflow-demo");
                   setToken(null);
@@ -244,7 +292,7 @@ export default function Demo() {
                 </select>
               </label>
               <button
-                className="btn border"
+                className="btn btn-secondary"
                 disabled={busy}
                 onClick={() => {
                   setSelected(null);
@@ -254,7 +302,7 @@ export default function Demo() {
                 Reset workspace
               </button>
               <button
-                className="btn border"
+                className="btn btn-secondary"
                 disabled={busy}
                 onClick={async () => {
                   setBusy(true);
@@ -337,10 +385,13 @@ export default function Demo() {
                     ))}
                   </div>
                 </div>
-                <button className="btn border" onClick={exportReport}>
+                <button className="btn btn-secondary" onClick={exportReport}>
                   Export visible requests (CSV)
                 </button>{" "}
-                <button className="btn border" onClick={() => window.print()}>
+                <button
+                  className="btn btn-secondary"
+                  onClick={() => window.print()}
+                >
                   Print report
                 </button>
               </section>
@@ -429,7 +480,7 @@ export default function Demo() {
                       maxLength={40}
                     />
                   </label>
-                  <button className="btn border" disabled={busy}>
+                  <button className="btn btn-secondary" disabled={busy}>
                     Create property & unit
                   </button>
                 </form>
@@ -601,6 +652,8 @@ export default function Demo() {
             </section>
             {current && (
               <section
+                id="demo-request-detail"
+                tabIndex={-1}
                 aria-label="Request details"
                 className="rounded-xl border border-blue-300 bg-white p-5"
               >
@@ -647,7 +700,7 @@ export default function Demo() {
                             ))}
                         </select>
                       </label>
-                      <button className="btn border" disabled={busy}>
+                      <button className="btn btn-secondary" disabled={busy}>
                         Assign work
                       </button>
                     </form>

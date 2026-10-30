@@ -1,78 +1,71 @@
 import React from "react";
 import {
   LogOut,
-  Wrench,
   Users,
   LayoutDashboard,
   Settings,
   Building2,
+  Wrench,
+  ArrowUpRight,
 } from "lucide-react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-
+import Brand from "./Brand";
+export const workspaceLinks = (role) => [
+  { to: "/app/home", label: "Overview", icon: LayoutDashboard },
+  { to: "/app/requests", label: "Maintenance", icon: Wrench },
+  { to: "/app/properties", label: "Properties", icon: Building2 },
+  ...(role === "admin"
+    ? [{ to: "/app/users", label: "People & access", icon: Users }]
+    : []),
+  { to: "/app/settings", label: "Account settings", icon: Settings },
+];
+export function WorkspaceNavigation({ role, onNavigate }) {
+  return (
+    <nav aria-label="Workspace navigation">
+      {workspaceLinks(role).map(({ to, label, icon: Icon }) => (
+        <NavLink
+          key={to}
+          to={to}
+          onClick={onNavigate}
+          className={({ isActive }) =>
+            `sidebar-link ${isActive ? "active" : ""}`
+          }
+        >
+          <Icon size={18} aria-hidden="true" />
+          {label}
+        </NavLink>
+      ))}
+    </nav>
+  );
+}
 export default function Sidebar({ role }) {
   const { logout } = useAuth();
   const navigate = useNavigate();
-
-  const linkClass = ({ isActive }) =>
-    `w-full flex items-center px-4 py-3 rounded-md text-sm font-medium transition-colors ${
-      isActive ? "bg-blue-50 text-blue-700" : "text-gray-700 hover:bg-slate-100"
-    }`;
-
-  const handleLogout = () => {
-    logout();
-    navigate("/login", { replace: true });
-  };
-
   return (
-    <div className="hidden w-64 flex-col border-r border-slate-200 bg-white md:flex">
-      <div className="border-b border-slate-200 p-6">
-        <div className="flex items-center gap-3">
-          <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-600 text-white">
-            <Wrench className="h-5 w-5" />
-          </span>
-          <h1 className="text-xl font-semibold">RentFlow</h1>
+    <aside className="app-sidebar">
+      <Brand light />
+      <p className="sidebar-caption">Your workspace</p>
+      <WorkspaceNavigation role={role} />
+      <div className="mt-auto">
+        <div className="sidebar-note">
+          <strong>A fresh perspective</strong>
+          <p>Explore a repair from all four roles in a private demo.</p>
+          <Link to="/demo">
+            Try the demo <ArrowUpRight size={14} />
+          </Link>
         </div>
-      </div>
-
-      <nav className="flex-1 px-3 py-6 space-y-1">
-        <NavLink to="/app/home" className={linkClass}>
-          <LayoutDashboard className="mr-3 h-5 w-5" />
-          Dashboard
-        </NavLink>
-
-        <NavLink to="/app/requests" className={linkClass}>
-          <Wrench className="mr-3 h-5 w-5" />
-          Maintenance Requests
-        </NavLink>
-
-        <NavLink to="/app/properties" className={linkClass}>
-          <Building2 className="mr-3 h-5 w-5" />
-          Properties
-        </NavLink>
-
-        {role === "admin" && (
-          <NavLink to="/app/users" className={linkClass}>
-            <Users className="mr-3 h-5 w-5" />
-            Users
-          </NavLink>
-        )}
-
-        <NavLink to="/app/settings" className={linkClass}>
-          <Settings className="mr-3 h-5 w-5" />
-          Settings
-        </NavLink>
-      </nav>
-
-      <div className="p-4 border-t border-gray-200">
         <button
-          onClick={handleLogout}
-          className="w-full flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
+          className="sidebar-link mb-6 mt-4 w-11/12"
+          onClick={() => {
+            logout();
+            navigate("/login", { replace: true });
+          }}
         >
-          <LogOut className="mr-2 h-4 w-4" />
+          <LogOut size={17} />
           Sign out
         </button>
       </div>
-    </div>
+    </aside>
   );
 }

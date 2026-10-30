@@ -1,275 +1,292 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useCallback, useEffect, useState } from "react";
+import { UserPlus, Trash2, ShieldCheck, Search } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
-import { UserPlus, Trash2, ShieldCheck, User } from "lucide-react";
+import Modal from "../components/Modal";
 import ConfirmModal from "../components/ConfirmModal";
-
+import Input from "../components/Input";
+import EmptyState from "../components/EmptyState";
 export default function UsersView() {
-  const { axiosWithAuth } = useAuth();
+  const { axiosWithAuth, user } = useAuth();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [query, setQuery] = useState("");
   const [showForm, setShowForm] = useState(false);
-  const [form, setForm] = useState({
-    name: "",
-    email: "",
-    password: "",
-    role: "manager",
-  });
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [selectedUser, setSelectedUser] = useState(null);
+  const [saving, setSaving] = useState(false);
+  const [selected, setSelected] = useState(null);
   const [deleting, setDeleting] = useState(false);
-
-  // Fetch users
-  const fetchUsers = useCallback(async () => {
+  const load = useCallback(async () => {
+    setLoading(true);
+    setError("");
     try {
-      const res = await axiosWithAuth.get("/users");
-      setUsers(res.data);
-    } catch (err) {
-      console.error(err);
+      setUsers((await axiosWithAuth.get("/users")).data);
+    } catch (e) {
+      setError(
+        e.response?.data?.message ||
+          "We couldn’t load your team. Please retry.",
+      );
     } finally {
       setLoading(false);
     }
   }, [axiosWithAuth]);
-
-  // Open delete modal
-  const openDeleteModal = (user) => {
-    setSelectedUser(user);
-    setShowDeleteModal(true);
-  };
-
-  // Confirm deletion
-  const confirmDeleteUser = async () => {
-    if (!selectedUser) return;
-
+  useEffect(() => {
+    load();
+  }, [load]);
+  const create = async (e) => {
+    e.preventDefault();
+    const fields = Object.fromEntries(new FormData(e.currentTarget));
+    setSaving(true);
+    setError("");
     try {
-      setDeleting(true);
-      await axiosWithAuth.delete(`/users/${selectedUser._id}`);
-      setShowDeleteModal(false);
-      setSelectedUser(null);
-      fetchUsers();
-    } catch (err) {
-      alert("Failed to delete user");
+      const r = await axiosWithAuth.post("/users", fields);
+      setUsers((prev) => [...prev, r.data]);
+      setShowForm(false);
+      setSuccess(
+        "User created. Arrange secure delivery of their access details directly.",
+      );
+    } catch (e) {
+      setError(
+        e.response?.data?.message ||
+          "We couldn’t create this user. Please check the details.",
+      );
+    } finally {
+      setSaving(false);
+    }
+  };
+  const remove = async () => {
+    setDeleting(true);
+    setError("");
+    try {
+      await axiosWithAuth.delete(`/users/${selected._id}`);
+      setUsers((prev) => prev.filter((u) => u._id !== selected._id));
+      setSelected(null);
+      setSuccess(
+        "User removed. Their account can no longer access the workspace.",
+      );
+    } catch (e) {
+      setSelected(null);
+      setError(
+        e.response?.data?.message ||
+          "We couldn’t remove this user. Please retry.",
+      );
     } finally {
       setDeleting(false);
     }
   };
-
-  useEffect(() => {
-    fetchUsers();
-  }, [fetchUsers]);
-
-  // handle modal close with escape key
-  useEffect(() => {
-    const handleEsc = (e) => {
-      if (e.key === "Escape") {
-        setShowDeleteModal(false);
-      }
-    };
-
-    window.addEventListener("keydown", handleEsc);
-    return () => window.removeEventListener("keydown", handleEsc);
-  }, []);
-
-  // Form change
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
-
-  // Create user
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      await axiosWithAuth.post("/users", form);
-      setShowForm(false);
-      setForm({ name: "", email: "", password: "", role: "manager" });
-      fetchUsers();
-    } catch (err) {
-      alert(err.response?.data?.message || "Failed to create user");
-    }
-  };
-
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        Loading users...
-      </div>
-    );
-  }
-
+  const visible = users.filter((u) =>
+    `${u.name} ${u.email} ${u.role}`
+      .toLowerCase()
+      .includes(query.toLowerCase()),
+  );
+  const feedback = error && (
+    <p
+      role="alert"
+      className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-800"
+    >
+      {error}
+    </p>
+  );
   return (
-    <div>
-      {/* Header */}
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-gray-900">User Management</h2>
-        <button
-          onClick={() => setShowForm(true)}
-          className="btn btn-primary flex items-center"
-        >
-          <UserPlus className="h-4 w-4 mr-2" />
-          Add User
-        </button>
-      </div>
-
-      {/* Create User Form */}
-      {showForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-xl p-8 max-w-md w-full">
-            <h3 className="text-xl font-bold mb-6">Create New User</h3>
-
-            <form onSubmit={handleSubmit} className="space-y-5">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Full Name
-                </label>
-                <input
-                  name="name"
-                  value={form.name}
-                  onChange={handleChange}
-                  required
-                  className="input"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Email
-                </label>
-                <input
-                  name="email"
-                  type="email"
-                  value={form.email}
-                  onChange={handleChange}
-                  required
-                  className="input"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Password
-                </label>
-                <input
-                  name="password"
-                  type="password"
-                  value={form.password}
-                  onChange={handleChange}
-                  required
-                  className="input"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Role
-                </label>
-                <select
-                  name="role"
-                  value={form.role}
-                  onChange={handleChange}
-                  className="input"
-                >
-                  <option value="manager">Manager</option>
-                  <option value="admin">Administrator</option>
-                </select>
-              </div>
-
-              <div className="flex justify-end space-x-3 pt-4">
-                <button
-                  type="button"
-                  onClick={() => setShowForm(false)}
-                  className="btn btn-secondary px-6"
-                >
-                  Cancel
-                </button>
-                <button type="submit" className="btn btn-primary px-6">
-                  Create User
-                </button>
-              </div>
-            </form>
-          </div>
+    <div className="space-y-6">
+      <header className="page-heading">
+        <div>
+          <p className="eyebrow mb-3">Administration</p>
+          <h1>People & access</h1>
+          <p>Manage the people who keep your maintenance workspace running.</p>
         </div>
+        <button
+          className="btn btn-primary"
+          onClick={() => {
+            setShowForm(true);
+            setError("");
+          }}
+        >
+          <UserPlus size={17} />
+          Add a user
+        </button>
+      </header>
+      {!showForm && feedback}
+      {success && (
+        <p
+          role="status"
+          className="rounded-lg border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-800"
+        >
+          {success}
+        </p>
       )}
-
-      {/* Users Table */}
-      <div className="bg-white shadow rounded-lg overflow-hidden">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Name
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Email
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Role
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {users.map((u) => (
-              <tr key={u._id} className="hover:bg-gray-50">
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="flex items-center">
-                    {u.role === "admin" ? (
-                      <ShieldCheck className="h-5 w-5 text-purple-600 mr-2" />
-                    ) : (
-                      <User className="h-5 w-5 text-blue-600 mr-2" />
-                    )}
-                    <div className="text-sm font-medium text-gray-900">
-                      {u.name}
-                    </div>
-                  </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {u.email}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <span
-                    className={`badge ${
-                      u.role === "admin"
-                        ? "bg-purple-100 text-purple-800"
-                        : "bg-blue-100 text-blue-800"
-                    }`}
-                  >
-                    {u.role}
-                  </span>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                  <button
-                    onClick={() => openDeleteModal(u)}
-                    className="text-red-600 hover:text-red-900"
-                    title="Delete user"
-                  >
-                    <Trash2 size={18} />
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div className="surface flex flex-wrap items-center justify-between gap-4 p-4">
+        <p className="text-sm font-medium">{users.length} workspace members</p>
+        <label className="relative">
+          <span className="sr-only">Search people</span>
+          <Search
+            className="absolute left-3 top-3.5 text-slate-500"
+            size={16}
+          />
+          <input
+            className="input !pl-9"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Name, email or role"
+          />
+        </label>
       </div>
-
-      {/*  Confirm Modal */}
+      <section
+        className="surface overflow-hidden"
+        aria-label="Workspace members"
+      >
+        {loading ? (
+          <p role="status" className="p-12 text-center text-sm text-slate-500">
+            Loading your team…
+          </p>
+        ) : error && !users.length ? (
+          <EmptyState
+            title="Your team couldn’t load"
+            description="Please check your connection."
+          >
+            <button className="btn btn-secondary" onClick={load}>
+              Try again
+            </button>
+          </EmptyState>
+        ) : !visible.length ? (
+          <EmptyState
+            title="No people found"
+            description="Try another name or add a user to the workspace."
+          />
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[620px] text-left text-sm">
+              <caption className="sr-only">
+                Workspace users and access roles
+              </caption>
+              <thead className="bg-[#f6f8f2] text-[10px] uppercase tracking-wider text-slate-500">
+                <tr>
+                  {["Person", "Email", "Access", "Actions"].map((t) => (
+                    <th scope="col" key={t} className="px-6 py-4">
+                      {t}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {visible.map((u) => (
+                  <tr key={u._id}>
+                    <td className="px-6 py-5">
+                      <div className="flex items-center gap-3">
+                        <span className="app-avatar">
+                          {u.name?.[0]?.toUpperCase()}
+                        </span>
+                        <span className="font-medium">
+                          {u.name}
+                          {u._id === (user?._id || user?.id) && (
+                            <span className="ml-2 text-xs text-slate-500">
+                              You
+                            </span>
+                          )}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-5 text-xs text-slate-500">
+                      {u.email}
+                    </td>
+                    <td className="px-6 py-5">
+                      <span
+                        className={`badge ${u.role === "admin" ? "bg-teal-50 text-teal-800" : "bg-slate-100 text-slate-600"}`}
+                      >
+                        <ShieldCheck size={13} />
+                        {u.role === "admin" ? "Administrator" : "Manager"}
+                      </span>
+                    </td>
+                    <td className="px-6 py-5">
+                      <button
+                        className="icon-button text-red-700"
+                        aria-label={`Remove ${u.name}`}
+                        disabled={u._id === (user?._id || user?.id)}
+                        onClick={() => setSelected(u)}
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </section>
+      <p className="text-xs leading-6 text-slate-500">
+        Administrators manage users. Managers work with maintenance requests.
+        Email invitations are not currently configured.
+      </p>
+      {showForm && (
+        <Modal
+          title="Add a workspace user"
+          description="Create an account for a trusted team member. Access details must be shared securely outside RentFlow."
+          onClose={() => setShowForm(false)}
+          busy={saving}
+        >
+          {feedback}
+          <form className="mt-4 space-y-4" onSubmit={create}>
+            <Input
+              name="name"
+              label="Full name"
+              required
+              maxLength={100}
+              autoComplete="name"
+            />
+            <Input
+              name="email"
+              label="Email address"
+              type="email"
+              required
+              maxLength={254}
+              autoComplete="email"
+            />
+            <Input
+              name="password"
+              label="Initial password"
+              type="password"
+              required
+              minLength={12}
+              autoComplete="new-password"
+              hint="Use at least 12 characters and deliver it privately."
+            />
+            <label className="block text-sm font-medium">
+              Role
+              <select name="role" className="input mt-2">
+                <option value="manager">Manager</option>
+                <option value="admin">Administrator</option>
+              </select>
+            </label>
+            <div className="flex justify-end gap-3 border-t border-slate-100 pt-5">
+              <button
+                type="button"
+                className="btn btn-secondary"
+                disabled={saving}
+                onClick={() => setShowForm(false)}
+              >
+                Cancel
+              </button>
+              <button className="btn btn-primary" disabled={saving}>
+                {saving ? "Creating…" : "Create user"}
+              </button>
+            </div>
+          </form>
+        </Modal>
+      )}
       <ConfirmModal
-        isOpen={showDeleteModal}
-        title="Delete User"
+        isOpen={!!selected}
+        title="Remove workspace access?"
         message={
           <>
-            Are you sure you want to delete{" "}
-            <span className="font-bold font-mono">{selectedUser?.name}</span>?
-            This action cannot be undone.
+            Remove <strong>{selected?.name}</strong> from the workspace? This
+            deletes their account and cannot be undone.
           </>
         }
-        onConfirm={confirmDeleteUser}
-        onCancel={() => {
-          setShowDeleteModal(false);
-          setSelectedUser(null);
-        }}
-        confirmText="Delete"
+        onCancel={() => setSelected(null)}
+        onConfirm={remove}
         loading={deleting}
+        confirmText="Remove user"
       />
     </div>
   );

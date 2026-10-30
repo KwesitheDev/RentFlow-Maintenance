@@ -1,8 +1,8 @@
 import React from "react";
-
+import Modal from "./Modal";
 export default function ConfirmModal({
   isOpen,
-  title = "Confirm Action",
+  title = "Confirm action",
   message,
   onConfirm,
   onCancel,
@@ -11,34 +11,25 @@ export default function ConfirmModal({
   loading = false,
 }) {
   if (!isOpen) return null;
-
   return (
-    <div
-      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-      onClick={onCancel}
-    >
-      <div
-        className="bg-white rounded-lg shadow-xl p-6 max-w-sm w-full"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <h3 className="text-lg font-bold mb-4 text-gray-900">{title}</h3>
-
-        <p className="text-sm text-gray-600 mb-6">{message}</p>
-
-        <div className="flex justify-end space-x-3">
-          <button onClick={onCancel} className="btn btn-secondary px-2">
-            {cancelText}
-          </button>
-
-          <button
-            onClick={onConfirm}
-            disabled={loading}
-            className="btn bg-red-600 text-white hover:bg-red-700 px-2 disabled:opacity-50"
-          >
-            {loading ? "Processing..." : confirmText}
-          </button>
-        </div>
+    <Modal title={title} onClose={onCancel} busy={loading}>
+      <div className="mb-6 text-sm leading-7 text-slate-600">{message}</div>
+      <div className="flex justify-end gap-3">
+        <button
+          disabled={loading}
+          onClick={onCancel}
+          className="btn btn-secondary"
+        >
+          {cancelText}
+        </button>
+        <button
+          onClick={onConfirm}
+          disabled={loading}
+          className="btn btn-danger"
+        >
+          {loading ? "Processing…" : confirmText}
+        </button>
       </div>
-    </div>
+    </Modal>
   );
 }

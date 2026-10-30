@@ -38,67 +38,72 @@ export default function Login() {
       subtitle="Open your maintenance workspace and pick up tenant repairs where your team left off."
       footer={
         <p className="text-sm text-slate-600">
-          Don't have an account?{" "}
+          Just exploring?{" "}
           <Link
-            to="/register"
+            to="/demo"
             className="font-semibold text-blue-700 hover:text-blue-800"
           >
-            Create account
+            Try the four-role demo
           </Link>
         </p>
       }
     >
-        {error && (
-          <div className="mb-5 rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">
-            {error}
-          </div>
-        )}
+      {error && (
+        <div
+          role="alert"
+          className="mb-5 rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700"
+        >
+          {error}
+        </div>
+      )}
 
-        <form onSubmit={handleSubmit} className="space-y-5">
-          <Input
-            label="Email address"
-            id="email"
-            name="email"
-            type="email"
-            placeholder="you@example.com"
-            value={email}
-            required
-            onChange={(e) => setEmail(e.target.value)}
-            inputClassName="h-11"
-          />
+      <form onSubmit={handleSubmit} className="space-y-5">
+        <Input
+          label="Email address"
+          id="email"
+          name="email"
+          type="email"
+          autoComplete="username"
+          placeholder="you@example.com"
+          value={email}
+          required
+          onChange={(e) => setEmail(e.target.value)}
+          inputClassName="h-11"
+        />
 
-          <Input
-            label="Password"
-            id="password"
-            name="password"
-            type="password"
-            placeholder="Enter your password"
-            value={password}
-            required
-            onChange={(e) => setPassword(e.target.value)}
-            inputClassName="h-11"
-          />
+        <Input
+          label="Password"
+          id="password"
+          name="password"
+          type="password"
+          autoComplete="current-password"
+          placeholder="Enter your password"
+          value={password}
+          required
+          onChange={(e) => setPassword(e.target.value)}
+          inputClassName="h-11"
+        />
 
-          <div className="text-right">
-            <Link
-              to="/forgot-password"
-              className="text-sm font-semibold text-blue-700 hover:text-blue-800"
-            >
-              Forgot password?
-            </Link>
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className={`btn btn-primary flex w-full items-center justify-center gap-2 ${
-              loading ? "opacity-70 cursor-not-allowed" : ""
-            }`}
+        <div className="text-right">
+          <Link
+            to="/forgot-password"
+            className="text-sm font-semibold text-blue-700 hover:text-blue-800"
           >
-            {!loading && <LogIn className="h-4 w-4" />}
-            {loading ? "Signing in..." : "Sign in"}
-          </button>
-        </form>
+            Need help signing in?
+          </Link>
+        </div>
+
+        <button
+          type="submit"
+          disabled={loading}
+          className={`btn btn-primary flex w-full items-center justify-center gap-2 ${
+            loading ? "opacity-70 cursor-not-allowed" : ""
+          }`}
+        >
+          {!loading && <LogIn className="h-4 w-4" />}
+          {loading ? "Signing in..." : "Sign in"}
+        </button>
+      </form>
     </AuthShell>
   );
 }

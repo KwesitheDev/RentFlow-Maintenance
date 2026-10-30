@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import React, { useState } from "react";
 import Card from "../components/Card";
 import { useAuth } from "../context/AuthContext";
@@ -55,20 +56,28 @@ const Settings = () => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold text-slate-950">Settings</h1>
-        <p className="mt-1 text-sm text-slate-500">
-          Manage your profile, password, and notification preferences.
-        </p>
+      <div className="page-heading">
+        <div>
+          <h1 className="text-2xl font-semibold text-slate-950">Settings</h1>
+          <p className="mt-1 text-sm text-slate-500">
+            Manage your profile and account security.
+          </p>
+        </div>
       </div>
 
       {error && (
-        <div className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+        <div
+          role="alert"
+          className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700"
+        >
           {error}
         </div>
       )}
       {message && (
-        <div className="rounded-md border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-700">
+        <div
+          role="status"
+          className="rounded-md border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-700"
+        >
           {message}
         </div>
       )}
@@ -100,7 +109,11 @@ const Settings = () => {
                 setProfile((prev) => ({ ...prev, email: e.target.value }))
               }
             />
-            <button className="btn btn-primary" type="submit" disabled={updating}>
+            <button
+              className="btn btn-primary"
+              type="submit"
+              disabled={updating}
+            >
               {updating ? "Updating..." : "Update profile"}
             </button>
           </form>
@@ -167,16 +180,14 @@ const Settings = () => {
           <Bell size={20} />
           <span className="font-semibold text-lg">Notifications</span>
         </div>
-        <div className="mt-5 grid gap-4 sm:grid-cols-2">
-          <label className="flex items-center gap-3 rounded-lg border border-slate-200 p-4">
-            <input type="checkbox" className="h-4 w-4" defaultChecked />
-            <span className="text-sm text-gray-700">Email request updates</span>
-          </label>
-          <label className="flex items-center gap-3 rounded-lg border border-slate-200 p-4">
-            <input type="checkbox" className="h-4 w-4" />
-            <span className="text-sm text-gray-700">Urgent request alerts</span>
-          </label>
-        </div>
+        <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-500">
+          Production email notifications are not configured. The interactive
+          demo includes in-app updates for assignments, status changes and
+          completed repairs.
+        </p>
+        <Link className="text-link mt-4" to="/demo">
+          Explore demo notifications →
+        </Link>
       </Card>
     </div>
   );

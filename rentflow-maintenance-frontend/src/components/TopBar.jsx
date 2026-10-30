@@ -1,29 +1,54 @@
 import React from "react";
-import { Menu, User } from "lucide-react";
-
-export default function TopBar({ user }) {
+import { Menu, X, ChevronRight } from "lucide-react";
+import { Link, useLocation } from "react-router-dom";
+export default function TopBar({ user, menuOpen, onMenuToggle }) {
+  const { pathname } = useLocation();
+  const title =
+    {
+      home: "Overview",
+      requests: "Maintenance",
+      properties: "Properties",
+      users: "People & access",
+      settings: "Account settings",
+    }[pathname.split("/").pop()] || "Workspace";
   return (
-    <header className="flex items-center justify-between border-b border-slate-200 bg-white px-4 py-4 sm:px-6">
-      <div className="flex items-center">
-        <button className="mr-3 rounded-md p-2 text-slate-600 hover:bg-slate-100 md:hidden">
-          <Menu className="h-5 w-5" />
+    <header className="app-topbar">
+      <div className="flex items-center gap-3">
+        <button
+          className="icon-button md:hidden"
+          aria-label={menuOpen ? "Close workspace menu" : "Open workspace menu"}
+          aria-expanded={menuOpen}
+          aria-controls="workspace-mobile-menu"
+          onClick={onMenuToggle}
+        >
+          {menuOpen ? <X size={19} /> : <Menu size={19} />}
         </button>
-        <h2 className="text-lg font-semibold text-gray-900 sm:text-xl">
-          {user?.role === "admin" ? "Admin Dashboard" : "Manager Dashboard"}
-        </h2>
+        <p className="app-breadcrumb">
+          <span>Workspace</span>
+          <ChevronRight size={13} aria-hidden="true" />
+          <strong>{title}</strong>
+        </p>
       </div>
-
-      <div className="flex items-center space-x-4">
-        <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
-            <User className="h-6 w-6 text-blue-600" />
-          </div>
-          <div className="hidden sm:block">
-            <p className="text-sm font-medium text-gray-900">{user?.name}</p>
-            <p className="text-xs text-gray-500 capitalize">{user?.role}</p>
-          </div>
+      <Link
+        to="/app/settings"
+        aria-label="Open your account settings"
+        className="flex items-center gap-3"
+      >
+        <span className="app-avatar" aria-hidden="true">
+          {user?.name
+            ?.split(" ")
+            .map((s) => s[0])
+            .slice(0, 2)
+            .join("")
+            .toUpperCase() || "RF"}
+        </span>
+        <div className="hidden sm:block">
+          <p className="text-xs font-semibold">{user?.name}</p>
+          <p className="mt-1 text-[10px] capitalize text-slate-500">
+            {user?.role === "admin" ? "Administrator" : "Property manager"}
+          </p>
         </div>
-      </div>
+      </Link>
     </header>
   );
 }
